@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Incident Details</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+
+	<!-- Custom Styles -->
+	<link rel="stylesheet" href="/css/custom-cards.css">
+
+	<!-- Incident Detail Scripts -->
+	<script src="/assets/js/custom/incident-detail.js"></script>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<a href="/incident" class="btn btn-secondary btn-sm mb-3">
+						<i class="fa fa-arrow-left me-2"></i> Back to List
+					</a>
+					<h2 class="fw-bold mb-2 text-dark" th:text="'Incident Report: ' + ${incident.code}">Incident Details</h2>
+					<p class="text-muted mb-0">
+						<i class="fa fa-calendar-alt me-2"></i>
+						<span th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'dd MMMM, yyyy') : 'N/A'}"></span>
+					</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<button type="button" class="btn btn-warning btn-round me-2" id="editIncidentBtn"
+						th:data-incident-code="${incident.code}">
+						<i class="fa fa-edit me-2"></i> Edit
+					</button>
+					<button type="button" class="btn btn-danger btn-round" id="deleteIncidentBtn"
+						th:data-incident-code="${incident.code}" onclick="deleteIncident(event)">
+						<i class="fa fa-trash me-2"></i> Delete
+					</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<!-- Main Details Column -->
+				<div class="col-md-8">
+					<!-- Incident Information Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Incident Information</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Incident ID</label>
+										<p class="text-muted" th:text="${incident.code}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Date & Time</label>
+										<p class="text-muted" th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'dd MMMM, yyyy') : 'N/A'} + ' at ' + (${incident.reportDate != null ? #temporals.format(incident.reportDate, 'HH:mm') : 'N/A'})"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+									<label class="form-label fw-bold">Area</label>
+									<p class="text-muted" th:text="${incident.area != null ? incident.area.name : 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Incident Type</label>
+										<p><span class="badge bg-info" th:text="${incident.type != null ? incident.type.name : 'N/A'}"></span></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold">Description</label>
+										<p class="text-muted" th:text="${incident.description}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Severity Level</label>
+										<p><span class="badge bg-danger fs-6" th:text="${incident.severity != null ? incident.severity.name : 'N/A'}"></span></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Status</label>
+										<p><span class="badge bg-warning fs-6" th:text="${incident.status != null ? incident.status.name : 'Under Investigation'}"></span></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Observed Condition Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Observed Details</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Involved Person</label>
+									<p class="text-muted" th:text="${incident.involvedPersonName ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Employee ID</label>
+									<p class="text-muted" th:text="${incident.involvedPersonEmployeeId ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Position</label>
+									<p class="text-muted" th:text="${incident.involvedPersonPosition ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Department</label>
+									<p class="text-muted" th:text="${incident.involvedPersonPosition ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold">Description</label>
+										<p class="text-muted" th:text="${incident.description ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Witnesses</label>
+										<p class="text-muted" th:text="${incident.witnesses != null ? incident.witnesses : 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Witnesses Employee ID</label>
+										<p class="text-muted" th:text="${incident.witnessesEmployeeId != null ? incident.witnessesEmployeeId : 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Incident Details Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Actions</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Immediate Action</label>
+										<p class="text-muted" th:text="${incident.immediateAction ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Corrective Action</label>
+										<p class="text-muted" th:text="${incident.correctiveAction ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Medical Attention Required</label>
+										<p><span class="badge bg-success" th:text="${incident.medicalAttentionRequired ? 'Yes' : 'No'}"></span></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Sidebar Column -->
+				<div class="col-md-4">
+					<!-- Status Summary Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Status Summary</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-4">
+									<p class="text-muted small mb-1">Current Status</p>
+									<p class="fw-bold mb-3">
+										<span class="badge bg-warning" th:text="${incident.status ?: 'N/A'}"></span>
+									</p>
+								</div>
+								<div class="col-md-4">
+									<p class="text-muted small mb-1">Severity</p>
+									<p class="fw-bold mb-3">
+										<span class="badge bg-danger" th:text="${incident.severity ?: 'N/A'}"></span>
+									</p>
+								</div>
+								<div class="col-md-4">
+									<p class="text-muted small mb-1">Incident Type</p>
+									<p class="fw-bold mb-3">
+										<span class="badge bg-info" th:text="${incident.type ?: 'N/A'}"></span>
+									</p>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<p class="text-muted small mb-1">Reported Date</p>
+									<p class="fw-bold" th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'dd/MM/yyyy') : 'N/A'} + '   ' + (${incident.reportDate != null ? #temporals.format(incident.reportDate, 'HH:mm') : 'N/A'})"></p>
+								</div>
+								<div class="col-md-6">
+									<p class="text-muted small mb-1">Last Updated</p>
+									<p class="fw-bold" th:text="${incident.updatedAt != null ? #temporals.format(incident.updatedAt, 'dd/MM/yyyy') : 'N/A'} + '   ' + (${incident.updatedAt != null ? #temporals.format(incident.updatedAt, 'HH:mm') : 'N/A'})"></p>
+								</div>
+							</div>
+							<button class="btn btn-sm btn-info w-100">
+								<i class="fa fa-check me-2"></i> Update Status
+							</button>
+						</div>
+					</div>
+
+					<!-- Reported By Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Reported By</div>
+						</div>
+						<div class="card-body">
+							<div class="d-flex align-items-center">
+								<div class="avatar avatar-online">
+									<img src="/assets/img/profile2.jpg" alt="..." class="avatar-img rounded-circle">
+								</div>
+								<div class="ms-3">
+									<p class="fw-bold mb-1" th:text="${incident.reportedBy != null ? incident.reportedBy : 'N/A'}"></p>
+
+									<small class="text-muted" th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'dd/MM/yyyy') : 'N/A'}"></small>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Attachment Section -->
+					<div class="card shadow-sm border-0 mb-4" th:if="${incident.files != null and incident.files.size() > 0}">
+						<div class="card-header bg-gradient bg-secondary text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-paperclip me-2"></i> Attachments
+							</div>
+						</div>
+						<div class="card-body p-3">
+							<ul class="list-group list-group-flush">
+								<th:block th:each="file : ${incident.files}">
+									<li th:if="${file.fileType.name() != 'IMAGE'}" class="list-group-item d-flex align-items-center justify-content-between">
+										<div>
+											<i class="fa fa-file-alt me-2" style="color: #6c757d;"></i>
+											<span th:text="${file.fileName}"></span>
+										</div>
+									<div class="d-flex gap-1">
+										<button th:if="${#strings.toLowerCase(file.fileName).endsWith('.pdf')}"
+											type="button" class="btn btn-sm btn-outline-info"
+											th:onclick="|openPdfModal('@{/file/{filePath}(filePath=${file.filePath})}')|">
+											<i class="fa fa-eye me-1"></i> View
+										</button>
+										<a th:href="@{/file/{filePath}(filePath=${file.filePath})}" target="_blank" class="btn btn-sm btn-outline-primary">
+											<i class="fa fa-download me-1"></i> Download
+										</a>
+									</div>
+									</li>
+								</th:block>
+							</ul>
+						</div>
+					</div>
+					
+					<!-- Image card -->
+					<div class="card shadow-sm border-0 mb-4"
+						th:if="${incident.files != null and incident.files.size() > 0}">
+						<div class="card-header bg-gradient bg-success text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-images me-2"></i> Incident Photos
+							</div>
+						</div>
+						<div class="card-body p-3" style="max-height: 600px; overflow-y: auto;">
+							<div class="text-center">
+								<th:block th:each="file : ${incident.files}">
+									<div th:if="${file.fileType.name() == 'IMAGE' and file.incident != null and file.incident.id == incident.id}"
+										class="mb-3">
+										<img th:src="@{/file/{filePath}(filePath=${file.filePath})}"
+											th:alt="${file.fileName}"
+											th:data-src="@{/file/{filePath}(filePath=${file.filePath})}"
+											class="img-fluid rounded shadow-sm"
+											style="max-width: 100%; max-height: 300px; object-fit: cover; border: 1px solid #e9ecef; cursor: pointer; transition: transform 0.2s ease;"
+											onclick="window.openZoomModal(this)"
+											onmouseover="this.style.transform='scale(1.02)'"
+											onmouseout="this.style.transform='scale(1)'"
+											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+										<div style="display: none; align-items: center; justify-content: center; min-height: 200px; background-color: #f8f9fa; border: 1px solid #e9ecef; border-radius: 4px;">
+											<div class="text-muted">
+												<i class="fa fa-image fa-3x mb-2"></i>
+												<p>Image not found</p>
+											</div>
+										</div>
+									</div>
+								</th:block>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Comments Section -->
+			<div class="row mt-4">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Comments & Updates</div>
+						</div>
+						<div class="card-body">
+							<!-- Existing Comments -->
+							<div class="comments-section mb-3" id="commentsList">
+								<div class="comment mb-3" th:each="comment : ${incident.comments}">
+									<div class="d-flex">
+										<div class="avatar me-3">
+											<img src="/assets/img/jm_avatar.jpg" alt="..." class="avatar-img rounded-circle">
+										</div>
+										<div class="flex-grow-1">
+											<h6 class="fw-bold mb-1" th:text="${comment.createdByUser != null ? comment.createdByUser.fullName : 'User'}"></h6>
+											<small class="text-muted" th:text="${#temporals.format(comment.createdAt, 'dd MMMM, yyyy HH:mm')}"></small>
+											<p class="text-muted small mt-2" th:text="${comment.content}"></p>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Add Comment Form -->
+							<div class="add-comment">
+								<div class="form-group">
+									<textarea class="form-control form-control-sm" id="commentContent" placeholder="Add a comment..." rows="3"></textarea>
+								</div>
+								<button type="button" class="btn btn-sm btn-primary" onclick="submitComment()">
+									<i class="fa fa-comment me-2"></i> Post Comment
+								</button>
+								<span id="commentMessage" class="text-success ms-2" style="display:none;"></span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Image Zoom Modal -->
+					<div class="modal fade" id="imageZoomModal" tabindex="-1" aria-labelledby="imageZoomModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-fullscreen">
+						<div class="modal-content">
+							<div class="modal-header">
+								<h5 class="modal-title" id="imageZoomModalLabel">Image Preview</h5>
+								<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+							</div>
+							<div class="modal-body text-center d-flex align-items-center justify-content-center" style="height: calc(100vh - 60px);">
+								<img id="zoomedImage" src="" alt="Zoomed Image" style="max-width: 95%; max-height: 95%; object-fit: contain;">
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+		<!-- PDF Viewer Modal -->
+		<div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="pdfViewerModalLabel">Document Preview</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body p-0">
+						<iframe id="pdfViewerFrame" src="" style="width: 100%; height: 80vh; border: none;"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	<!-- Incident Modal Fragment - placed within content fragment -->
+	<div th:replace="fragments/incident-modal :: addIncidentModal"></div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<!-- Scripts for Incident Modal Live Search -->
+		<script th:src="@{/assets/js/custom/incident-index.js}"></script>
+		<script th:src="@{/assets/js/custom/incident-modal.js}"></script>
+		<!-- Scripts for Incident Form Submission + File Upload -->
+		<script th:src="@{/assets/js/custom/incident-form.js}"></script>
+
+		<script>
+			window.openPdfModal = function (url) {
+				document.getElementById('pdfViewerFrame').src = url;
+				new bootstrap.Modal(document.getElementById('pdfViewerModal')).show();
+			};
+			document.addEventListener('DOMContentLoaded', function () {
+				const pdfModal = document.getElementById('pdfViewerModal');
+				if (pdfModal) {
+					pdfModal.addEventListener('hidden.bs.modal', function () {
+						document.getElementById('pdfViewerFrame').src = '';
+					});
+				}
+			});
+		</script>
+
+		<script>
+			// Handle Edit button click - runs after all incident scripts are loaded
+			document.addEventListener('DOMContentLoaded', function () {
+				const editBtn = document.getElementById('editIncidentBtn');
+				if (editBtn) {
+					editBtn.addEventListener('click', function (e) {
+						e.preventDefault();
+						const incidentCode = this.getAttribute('data-incident-code');
+
+						if (!incidentCode) {
+							alert('Error: Incident code not found');
+							return;
+						}
+
+						if (typeof IncidentForm === 'undefined') {
+							alert('Error: Form handler not loaded');
+							return;
+						}
+
+						// Fetch incident data from API
+						fetch(`/api/incident/${incidentCode}`)
+							.then(response => {
+								if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+								return response.json();
+							})
+							.then(data => {
+								if (data && data.incidentCode) {
+									const modalElement = document.getElementById('addIncidentModal');
+									if (!modalElement) {
+										alert('Error: Modal not found on page');
+										return;
+									}
+									try {
+										IncidentForm.setUpdateMode(data.incidentCode, data);
+									} catch (error) {
+										alert('Error populating form: ' + error.message);
+										return;
+									}
+									try {
+										if (typeof $ !== 'undefined') {
+											$('#addIncidentModal').modal('show');
+										} else if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+											new bootstrap.Modal(modalElement).show();
+										} else {
+											alert('Error: Modal library not loaded');
+										}
+									} catch (error) {
+										alert('Error opening modal: ' + error.message);
+									}
+								} else {
+									alert('Error: Invalid incident data received');
+								}
+							})
+							.catch(error => {
+								alert('Error fetching incident data: ' + error.message);
+							});
+					});
+				}
+			});
+		</script>
+	</th:block>
+
+</html>

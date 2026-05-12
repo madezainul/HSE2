@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Kaiadmin - Bootstrap 5 Admin Dashboard</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<meta name="csrf-token" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+	<meta name="_csrf" th:if="${_csrf != null}" th:content="${_csrf.token}" />
+	<meta name="_csrf_header" th:if="${_csrf != null}" th:content="${_csrf.headerName}" />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+
+	<!-- Custom CSS for active menu styling -->
+	<style>
+		/* Active menu item styling */
+		.sidebar .nav-item.active > a {
+			background-color: #2196F3;
+			color: #fff;
+			font-weight: 600;
+			border-radius: 4px;
+		}
+
+		.sidebar .nav-item.active > a:hover {
+			background-color: #1976D2;
+		}
+
+		/* Active submenu item styling */
+		.sidebar .nav-collapse .nav-item a.active {
+			background-color: #64B5F6;
+			color: #fff;
+			font-weight: 500;
+			border-left: 4px solid #2196F3;
+			padding-left: calc(1rem - 4px);
+			border-radius: 0 4px 4px 0;
+		}
+
+		.sidebar .nav-collapse .nav-item a.active:hover {
+			background-color: #42A5F5;
+		}
+
+		/* Text color for active items */
+		.sidebar .nav-item.active > a p,
+		.sidebar .nav-collapse .nav-item a.active .sub-item {
+			color: #fff;
+		}
+
+		/* Icon color for active items */
+		.sidebar .nav-item.active > a i,
+		.sidebar .nav-collapse .nav-item a.active i {
+			color: #fff;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="wrapper">
+		<div class="main-header-logo">
+			<!-- Logo Header -->
+			<div class="logo-header" data-background-color="dark">
+
+				<a href="/" class="logo">
+					<img src="/assets/img/kaiadmin/logo_light.svg" alt="navbar brand" class="navbar-brand" height="20">
+				</a>
+				<div class="nav-toggle">
+					<button class="btn btn-toggle toggle-sidebar">
+						<i class="gg-menu-right"></i>
+					</button>
+					<button class="btn btn-toggle sidenav-toggler">
+						<i class="gg-menu-left"></i>
+					</button>
+				</div>
+				<button class="topbar-toggler more">
+					<i class="gg-more-vertical-alt"></i>
+				</button>
+
+			</div>
+			<!-- End Logo Header -->
+		</div>
+		<!-- Sidebar -->
+		<div class="sidebar" data-background-color="dark">
+			<div class="sidebar-logo">
+				<!-- Logo Header -->
+				<div class="logo-header" data-background-color="dark">
+
+					<a href="/" class="logo d-flex align-items-center gap-2" style="text-decoration: none;">
+						<img src="/assets/img/kaiadmin/pck2.png" alt="navbar brand" class="navbar-brand"
+							height="50" style="flex-shrink: 0;">
+						<span class="fw-bold text-white" style="font-size: 2.25rem; letter-spacing: 1px;">HSE</span>
+					</a>
+					<div class="nav-toggle">
+						<button class="btn btn-toggle toggle-sidebar">
+							<i class="gg-menu-right"></i>
+						</button>
+						<button class="btn btn-toggle sidenav-toggler">
+							<i class="gg-menu-left"></i>
+						</button>
+					</div>
+					<button class="topbar-toggler more">
+						<i class="gg-more-vertical-alt"></i>
+					</button>
+
+				</div>
+				<!-- End Logo Header -->
+			</div>
+			<div class="sidebar-wrapper scrollbar scrollbar-inner">
+				<div class="sidebar-content">
+					<ul class="nav nav-secondary">
+						<li class="nav-item" th:classappend="${title == 'Users Management'} ? 'active' : ''" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+							<a data-bs-toggle="collapse" href="#dashboard" th:classappend="${title == 'Users Management'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Users Management'}">
+								<i class="fas fa-home"></i>
+								<p>Dashboard</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="dashboard" th:classappend="${title == 'Users Management'} ? 'show' : ''">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="/user" th:classappend="${title == 'Users Management'} ? 'active' : ''">
+											<i class="fa fa-users"></i>Users Management
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-section">
+							<span class="sidebar-mini-icon">
+								<i class="fa fa-ellipsis-h"></i>
+							</span>
+							<h4 class="text-section">Components</h4>
+						</li>
+						<!-- <li class="nav-item" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#observation" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Accident List' or title == 'Incident List'}">
+								<i class="far fa-newspaper"></i>
+								<p>Observation</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="observation" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? 'show' : ''">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="/observation/accident" th:classappend="${title == 'Accident List'} ? 'active' : ''">
+											<i th:if="${title == 'Accident List'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Accident</span>
+										</a>
+									</li>
+									<li>
+										<a href="/incident" th:classappend="${title == 'Incident List'} ? 'active' : ''">
+											<i th:if="${title == 'Incident List'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Observation Report</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li> -->
+						<li class="nav-item" th:classappend="${title == 'Incident Report'} ? 'active' : ''">
+							<a href="/incident">
+								<i class="fas fa-clipboard-list"></i>
+								<p>Incident Report</p>
+							</a>
+						</li>
+						<li class="nav-item" th:classappend="${title == 'Observation Report'} ? 'active' : ''">
+							<a href="/observation">
+								<i class="fas fa-search"></i>
+								<p>Observation Report</p>
+							</a>
+						</li>
+						<li class="nav-item" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'}">
+								<i class="fas fa-file-alt"></i>
+								<p>Documents</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? 'show' : ''">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="/documents/risk-assessment" th:classappend="${title == 'Risk Assessment'} ? 'active' : ''">
+											<i th:if="${title == 'Risk Assessment'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Risk Assessment</span>
+										</a>
+									</li>
+									<li>
+										<a href="/documents/work-instruction" th:classappend="${title == 'Work Instruction'} ? 'active' : ''">
+											<i th:if="${title == 'Work Instruction'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Work Instruction</span>
+										</a>
+									</li>
+									<li>
+										<a href="/documents/work-permit" th:classappend="${title == 'Work Permit'} ? 'active' : ''">
+											<i th:if="${title == 'Work Permit'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Work Permit</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item" th:classappend="${title == 'Areas'} ? 'active' : ''">
+							<a href="/areas">
+								<i class="fas fa-map-marker-alt"></i>
+								<p>Location</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="/toolbox">
+								<i class="fas fa-users"></i>
+								<p>Toolbox Meeting</p>
+							</a>
+						</li>
+						<li class="nav-item">
+							<a href="/checklist">
+								<i class="fas fa-tasks"></i>
+								<p>Checklist Management</p>
+							</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		<!-- End Sidebar -->
+		<div class="main-panel">
+			<div class="main-header">
+				<!-- Navbar Header -->
+				<nav class="navbar navbar-header navbar-expand-lg border-bottom" data-background-color="dark">
+
+					<div class="container-fluid">
+						<nav
+							class="navbar navbar-header-left navbar-expand-lg navbar-form nav-search p-0 d-none d-lg-flex">
+							<div class="input-group">
+								<div class="input-group-prepend">
+									<button type="submit" class="btn btn-search pe-1">
+										<i class="fa fa-search search-icon"></i>
+									</button>
+								</div>
+								<input type="text" placeholder="Search ..." class="form-control">
+							</div>
+						</nav>
+
+						<ul class="navbar-nav topbar-nav ms-md-auto align-items-center">
+							<li class="nav-item topbar-icon dropdown hidden-caret d-flex d-lg-none">
+								<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+									aria-expanded="false" aria-haspopup="true">
+									<i class="fa fa-search"></i>
+								</a>
+								<ul class="dropdown-menu dropdown-search animated fadeIn">
+									<form class="navbar-left navbar-form nav-search">
+										<div class="input-group">
+											<input type="text" placeholder="Search ..." class="form-control">
+										</div>
+									</form>
+								</ul>
+							</li>
+							<li class="nav-item topbar-icon dropdown hidden-caret">
+								<a class="nav-link dropdown-toggle" href="#" id="messageDropdown" role="button"
+									data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<i class="fa fa-envelope"></i>
+								</a>
+								<ul class="dropdown-menu messages-notif-box animated fadeIn"
+									aria-labelledby="messageDropdown">
+									<li>
+										<div class="dropdown-title d-flex justify-content-between align-items-center">
+											Messages
+											<a href="#" class="small">Mark all as read</a>
+										</div>
+									</li>
+									<li>
+										<div class="message-notif-scroll scrollbar-outer">
+											<div class="notif-center">
+												<a href="#">
+													<div class="notif-img">
+														<img src="/assets/img/jm_denis.jpg" alt="Img Profile">
+													</div>
+													<div class="notif-content">
+														<span class="subject">Jimmy Denis</span>
+														<span class="block">
+															How are you ?
+														</span>
+														<span class="time">5 minutes ago</span>
+													</div>
+												</a>
+												<a href="#">
+													<div class="notif-img">
+														<img src="/assets/img/chadengle.jpg" alt="Img Profile">
+													</div>
+													<div class="notif-content">
+														<span class="subject">Chad</span>
+														<span class="block">
+															Ok, Thanks !
+														</span>
+														<span class="time">12 minutes ago</span>
+													</div>
+												</a>
+												<a href="#">
+													<div class="notif-img">
+														<img src="/assets/img/mlane.jpg" alt="Img Profile">
+													</div>
+													<div class="notif-content">
+														<span class="subject">Jhon Doe</span>
+														<span class="block">
+															Ready for the meeting today...
+														</span>
+														<span class="time">12 minutes ago</span>
+													</div>
+												</a>
+												<a href="#">
+													<div class="notif-img">
+														<img src="/assets/img/talha.jpg" alt="Img Profile">
+													</div>
+													<div class="notif-content">
+														<span class="subject">Talha</span>
+														<span class="block">
+															Hi, Apa Kabar ?
+														</span>
+														<span class="time">17 minutes ago</span>
+													</div>
+												</a>
+											</div>
+										</div>
+									</li>
+									<li>
+										<a class="see-all" href="javascript:void(0);">See all messages<i
+												class="fa fa-angle-right"></i> </a>
+									</li>
+								</ul>
+							</li>
+							<!-- Live Notification Bell -->
+						<li class="nav-item topbar-icon dropdown hidden-caret" id="notifNavItem">
+							<a class="nav-link dropdown-toggle" href="#" id="notifDropdown" role="button"
+								data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+								<i class="fa fa-bell"></i>
+								<span class="notification d-none" id="notifBadge">0</span>
+							</a>
+							<ul class="dropdown-menu notif-box animated fadeIn" aria-labelledby="notifDropdown">
+								<li>
+									<div class="dropdown-title d-flex justify-content-between align-items-center">
+										<span id="notifTitle">You have 0 new notification</span>
+										<a href="#" class="small" id="markAllReadBtn">Mark all as read</a>
+									</div>
+								</li>
+								<li>
+									<div class="notif-scroll scrollbar-outer">
+										<div class="notif-center" id="notifList">
+											<a href="#" id="notifEmpty">
+												<div class="notif-icon notif-secondary">
+													<i class="fa fa-bell-slash"></i>
+												</div>
+												<div class="notif-content">
+													<span class="block">No notifications yet</span>
+													<span class="time"></span>
+												</div>
+											</a>
+										</div>
+									</div>
+								</li>
+								<li>
+									<a class="see-all" id="notifSeeAll" href="javascript:void(0);">See all notifications<i class="fa fa-angle-right"></i></a>
+								</li>
+							</ul>
+						</li>
+						<!-- End Live Notification Bell -->
+							<li class="nav-item topbar-icon dropdown hidden-caret">
+								<a class="nav-link" data-bs-toggle="dropdown" href="#" aria-expanded="false">
+									<i class="fas fa-layer-group"></i>
+								</a>
+								<div class="dropdown-menu quick-actions animated fadeIn">
+									<div class="quick-actions-header">
+										<span class="title mb-1">Quick Actions</span>
+										<span class="subtitle op-7">Shortcuts</span>
+									</div>
+									<div class="quick-actions-scroll scrollbar-outer">
+										<div class="quick-actions-items">
+											<div class="row m-0">
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-danger rounded-circle">
+															<i class="far fa-calendar-alt"></i>
+														</div>
+														<span class="text">Calendar</span>
+													</div>
+												</a>
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-warning rounded-circle">
+															<i class="fas fa-map"></i>
+														</div>
+														<span class="text">Maps</span>
+													</div>
+												</a>
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-info rounded-circle">
+															<i class="fas fa-file-excel"></i>
+														</div>
+														<span class="text">Reports</span>
+													</div>
+												</a>
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-success rounded-circle">
+															<i class="fas fa-envelope"></i>
+														</div>
+														<span class="text">Emails</span>
+													</div>
+												</a>
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-primary rounded-circle">
+															<i class="fas fa-file-invoice-dollar"></i>
+														</div>
+														<span class="text">Invoice</span>
+													</div>
+												</a>
+												<a class="col-6 col-md-4 p-0" href="#">
+													<div class="quick-actions-item">
+														<div class="avatar-item bg-secondary rounded-circle">
+															<i class="fas fa-credit-card"></i>
+														</div>
+														<span class="text">Payments</span>
+													</div>
+												</a>
+											</div>
+										</div>
+									</div>
+								</div>
+							</li>
+
+							<!-- Profile pic -->
+							<li class="nav-item topbar-user dropdown hidden-caret">
+								<a class="dropdown-toggle profile-pic" data-bs-toggle="dropdown" href="#"
+									aria-expanded="false">
+									<div class="avatar-sm">
+										<img th:src="${currentUser != null and currentUser.profilePicture != null ? '/file/' + currentUser.profilePicture : '/assets/img/profile.jpg'}" alt="User Avatar" class="avatar-img rounded-circle">
+									</div>
+									<span class="profile-username" th:if="${currentUser != null}">
+										<span class="op-7">Hi,</span> <span class="fw-bold" th:text="${currentUser.username}"></span><span class="fw-bold">!</span>
+									</span>
+								</a>
+								<ul class="dropdown-menu dropdown-user animated fadeIn">
+									<div class="dropdown-user-scroll scrollbar-outer">
+										<li>
+											<div class="user-box">
+												<div class="avatar-lg"><img th:src="${currentUser != null and currentUser.profilePicture != null ? '/file/' + currentUser.profilePicture : '/assets/img/profile.jpg'}" alt="image profile" class="avatar-img rounded"></div>
+												<div class="u-text" th:if="${currentUser != null}">
+										<h4 th:text="${currentUser.username}">User Name</h4>
+										<p class="text-muted" th:text="${currentUser.email ?: 'No email'}">email@example.com</p><a href="/user"
+														class="btn btn-xs btn-secondary btn-sm">View Profile</a>
+												</div>
+											</div>
+										</li>
+										<li>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item" href="#">My Profile</a>
+											<a class="dropdown-item" href="#">My Balance</a>
+											<a class="dropdown-item" href="#">Inbox</a>
+											<div class="dropdown-divider"></div>
+											<a class="dropdown-item" href="#">Account Setting</a>
+											<div class="dropdown-divider"></div>
+											<form id="logoutForm" th:action="@{/auth/logout}" method="post" style="display:none;"></form>
+											<a class="dropdown-item" href="#" onclick="document.getElementById('logoutForm').submit(); return false;">Logout</a>
+										</li>
+									</div>
+								</ul>
+							</li>
+							<!-- End of Profile pic -->
+						</ul>
+					</div>
+				</nav>
+				<!-- End Navbar -->
+			</div>
+			<div class="container">
+				<div class="content" layout:fragment="content">
+					<!-- Page Specific content goes here -->
+				</div>
+			</div>
+
+			<footer class="footer">
+				<div class="container-fluid">
+					<nav class="pull-left">
+						<ul class="nav">
+							<li class="nav-item">
+								<a class="nav-link" href="http://www.themekita.com">
+									ThemeKita
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#">
+									Help
+								</a>
+							</li>
+							<li class="nav-item">
+								<a class="nav-link" href="#">
+									Licenses
+								</a>
+							</li>
+						</ul>
+					</nav>
+					<div class="copyright ms-auto">
+						2024, made with <i class="fa fa-heart heart text-danger"></i> by <a
+							href="http://www.themekita.com">ThemeKita</a>
+					</div>
+				</div>
+			</footer>
+		</div>
+
+	</div>
+	<!--   Core JS Files   -->
+	<script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+	<script src="/assets/js/core/popper.min.js"></script>
+	<script src="/assets/js/core/bootstrap.min.js"></script>
+
+	<!-- jQuery Scrollbar -->
+	<script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Chart JS -->
+	<!-- <script src="/assets/js/plugin/chart.js/chart.min.js"></script> -->
+
+	<!-- jQuery Sparkline -->
+	<script src="/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+
+	<!-- Chart Circle -->
+	<script src="/assets/js/plugin/chart-circle/circles.min.js"></script>
+
+	<!-- Datatables -->
+	<script src="/assets/js/plugin/datatables/datatables.min.js"></script>
+
+	<!-- Bootstrap Notify -->
+	<script src="/assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+
+	<!-- jQuery Vector Maps -->
+	<!-- Commented out - causes errors on pages without map element -->
+	<!-- <script src="/assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+	<script src="/assets/js/plugin/jsvectormap/world.js"></script> -->
+
+	<!-- Sweet Alert -->
+	<script src="/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+
+	<!-- Kaiadmin JS -->
+	<script src="/assets/js/kaiadmin.min.js"></script>
+
+	<!-- Custom Modules for Live Search -->
+	<!-- <script src="/assets/js/custom/accident-index.js"></script>
+	<script src="/assets/js/custom/accident-modal.js"></script> -->
+
+	<!-- Kaiadmin DEMO methods, don't include it in your project! -->
+	<!-- <script src="/assets/js/setting-demo.js"></script>
+	<script src="/assets/js/demo.js"></script>
+	<script>
+		$('#lineChart').sparkline([102, 109, 120, 99, 110, 105, 115], {
+			type: 'line',
+			height: '70',
+			width: '100%',
+			lineWidth: '2',
+			lineColor: '#177dff',
+			fillColor: 'rgba(23, 125, 255, 0.14)'
+		});
+
+		$('#lineChart2').sparkline([99, 125, 122, 105, 110, 124, 115], {
+			type: 'line',
+			height: '70',
+			width: '100%',
+			lineWidth: '2',
+			lineColor: '#f3545d',
+			fillColor: 'rgba(243, 84, 93, .14)'
+		});
+
+		$('#lineChart3').sparkline([105, 103, 123, 100, 95, 105, 115], {
+			type: 'line',
+			height: '70',
+			width: '100%',
+			lineWidth: '2',
+			lineColor: '#ffa534',
+			fillColor: 'rgba(255, 165, 52, .14)'
+		});
+	</script> -->
+
+	<!-- Page-specific scripts fragment -->
+	<th:block layout:fragment="scripts"></th:block>
+
+	<!-- Live Notification Script (SSE) -->
+	<script>
+	(function () {
+		const badge      = document.getElementById('notifBadge');
+		const list       = document.getElementById('notifList');
+		const emptyItem  = document.getElementById('notifEmpty');
+		const titleEl    = document.getElementById('notifTitle');
+		const markAllBtn = document.getElementById('markAllReadBtn');
+
+		let unreadCount = 0;
+
+		// ── badge / title ─────────────────────────────────────────────────────
+		function updateBadge(count) {
+			unreadCount = Math.max(0, count);
+			if (unreadCount > 0) {
+				badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
+				badge.classList.remove('d-none');
+				titleEl.textContent = 'You have ' + unreadCount + ' new notification' + (unreadCount > 1 ? 's' : '');
+			} else {
+				badge.classList.add('d-none');
+				titleEl.textContent = 'You have 0 new notification';
+			}
+		}
+
+		// ── icon class per type ───────────────────────────────────────────────
+		function iconClass(type) {
+			return type === 'INCIDENT' ? 'notif-danger' : 'notif-warning';
+		}
+		function iconName(type) {
+			return type === 'INCIDENT' ? 'fa-exclamation-triangle' : 'fa-search';
+		}
+
+		// ── build one <a> item matching the template structure ─────────────────
+		function buildItem(n) {
+			const a = document.createElement('a');
+			a.href = n.linkUrl || '#';
+			a.dataset.id = n.id;
+			if (n.isRead) a.style.opacity = '0.55';
+			a.innerHTML =
+				'<div class="notif-icon ' + iconClass(n.type) + '">' +
+					'<i class="fa ' + iconName(n.type) + '"></i>' +
+				'</div>' +
+				'<div class="notif-content">' +
+					'<span class="block">' + escHtml(n.message) + '</span>' +
+					'<span class="time">' + escHtml(n.createdAt) + '</span>' +
+				'</div>';
+
+			a.addEventListener('click', function () {
+				if (!n.isRead) {
+					fetch('/api/notifications/' + n.id + '/read', { method: 'PUT' }).catch(() => {});
+					n.isRead = true;
+					a.style.opacity = '0.55';
+					updateBadge(unreadCount - 1);
+				}
+			});
+			return a;
+		}
+
+		function escHtml(str) {
+			const d = document.createElement('div');
+			d.appendChild(document.createTextNode(str || ''));
+			return d.innerHTML;
+		}
+
+		function prependItem(n) {
+			if (emptyItem) emptyItem.style.display = 'none';
+			list.insertBefore(buildItem(n), list.firstChild);
+		}
+
+		// ── initial load ──────────────────────────────────────────────────────
+		fetch('/api/notifications')
+			.then(function (r) { return r.ok ? r.json() : []; })
+			.then(function (items) {
+				if (!items || items.length === 0) return;
+				if (emptyItem) emptyItem.style.display = 'none';
+				items.slice(0, 10).forEach(function (n) {
+					list.appendChild(buildItem(n));
+				});
+				const unread = items.filter(function (n) { return !n.isRead; }).length;
+				updateBadge(unread);
+			})
+			.catch(function () {});
+
+		// ── SSE stream ────────────────────────────────────────────────────────
+		function connectSse() {
+			if (!window.EventSource) return;
+			const es = new EventSource('/api/notifications/stream');
+
+			es.addEventListener('notification', function (event) {
+				try {
+					const n = JSON.parse(event.data);
+					prependItem(n);
+					updateBadge(unreadCount + 1);
+					// Brief bell pulse
+					const bell = document.querySelector('#notifNavItem .fa-bell');
+					if (bell) {
+						bell.style.transition = 'color 0.3s';
+						bell.style.color = '#ffd700';
+						setTimeout(function () { bell.style.color = ''; }, 1500);
+					}
+				} catch (e) {}
+			});
+
+			es.onerror = function () {
+				es.close();
+				setTimeout(connectSse, 10000);
+			};
+		}
+		connectSse();
+
+		// ── mark all read ─────────────────────────────────────────────────────
+		if (markAllBtn) {
+			markAllBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				fetch('/api/notifications/read-all', { method: 'PUT' })
+					.then(function (r) { return r.ok ? r.json() : null; })
+					.then(function () {
+						updateBadge(0);
+						document.querySelectorAll('#notifList a[data-id]').forEach(function (el) {
+							el.style.opacity = '0.55';
+						});
+					})
+					.catch(function () {});
+			});
+		}
+	})();
+	</script>
+	<!-- End Live Notification Script -->
+</body>
+
+</html>

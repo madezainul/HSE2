@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Accident Details</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+
+	<!-- CSS Just for demo purpose, don't include it in your project -->
+	<link rel="stylesheet" href="/assets/css/demo.css">
+
+	<!-- Custom Card & Layout Styles -->
+	<link rel="stylesheet" href="/css/custom-cards.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4 mb-4">
+				<div>
+					<a href="/observation/accident" class="btn btn-secondary btn-sm mb-3">
+						<i class="fa fa-arrow-left me-2"></i> Back to List
+					</a>
+					<h2 class="fw-bold mb-2 text-dark" th:text="'Accident Report: ' + ${accident.code}">Accident Details</h2>
+					<p class="text-muted mb-0">
+						<i class="fa fa-calendar-alt me-2"></i>
+						<span th:text="${accident.accidentDate != null ? #temporals.format(accident.accidentDate, 'MMMM dd, yyyy') : 'N/A'}"></span>
+					</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<a href="#" class="btn btn-warning btn-round me-2" title="Edit this accident report">
+						<i class="fa fa-edit me-2"></i> Edit
+					</a>
+					<a href="#" class="btn btn-danger btn-round" title="Delete this accident report">
+						<i class="fa fa-trash me-2"></i> Delete
+					</a>
+				</div>
+			</div>
+
+			<div class="row">
+				<!-- Main Details Column -->
+				<div class="col-md-8">
+					<!-- Accident Information Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-exclamation-circle me-2"></i> Accident Information
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Accident Code</label>
+										<p class="text-muted mb-0" th:text="'#' + ${accident.code}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Date & Time</label>
+										<p class="text-muted mb-0" th:text="${accident.accidentDate != null ? #temporals.format(accident.accidentDate, 'MMM dd, yyyy HH:mm') : 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-map-marker me-2 text-primary"></i>Area
+										</label>
+										<p class="text-muted mb-0" th:text="${accident.area != null ? accident.area.name : 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-user me-2 text-primary"></i>Reported By
+										</label>
+										<p class="text-muted mb-0" th:text="${accident.reportedBy ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-align-left me-2 text-primary"></i>Description
+										</label>
+										<p class="text-muted mb-0" th:text="${accident.description ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-alert-circle me-2 text-primary"></i>Severity Level
+										</label>
+										<p class="mb-0">
+											<span class="badge fs-6" th:classappend="${accident.severity == 'CRITICAL' ? 'bg-danger' : accident.severity == 'HIGH' ? 'bg-warning' : accident.severity == 'MEDIUM' ? 'bg-info' : 'bg-success'}" th:text="${accident.severity ?: 'N/A'}"></span>
+										</p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-cog me-2 text-primary"></i>Status
+										</label>
+										<p class="mb-0">
+											<span class="badge fs-6" th:classappend="${accident.status == 'REPORTED' ? 'bg-info' : accident.status == 'UNDER_INVESTIGATION' ? 'bg-warning' : accident.status == 'RESOLVED' ? 'bg-success' : 'bg-secondary'}" th:text="${accident.status ?: 'N/A'}"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Accident Image Card -->
+					<div class="card mb-4 shadow-sm border-0" th:if="${accident.accidentImages != null and accident.accidentImages != ''}">
+						<div class="card-header bg-gradient bg-success text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-images me-2"></i> Accident Photos
+							</div>
+						</div>
+						<div class="card-body p-4">
+							<div class="text-center">
+								<img th:src="@{/uploads/{imageName}(imageName=${accident.accidentImages})}" 
+									 alt="Accident Image" 
+									 class="img-fluid rounded shadow-sm" 
+									 style="max-width: 100%; max-height: 450px; object-fit: cover; border: 1px solid #e9ecef;"
+									 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+								<!-- <div class="text-muted" style="display: none; max-width: 100%; height: 450px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; border: 1px dashed #dee2e6;">
+									<div>
+										<i class="fa fa-image fa-3x mb-2" style="color: #adb5bd;"></i>
+										<p class="mt-2">Image not found</p>
+									</div>
+								</div> -->
+								<p class="text-muted small mt-4 mb-0">
+									<i class="fa fa-clock me-2"></i>
+									<span th:text="'Uploaded: ' + ${#temporals.format(accident.updatedAt, 'MMM dd, yyyy HH:mm')}"></span>
+								</p>
+							</div>
+						</div>
+					</div>
+
+					<!-- Affected Person Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-info text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-user-circle me-2"></i> Affected Person
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Name</label>
+										<p class="text-muted mb-0" th:text="${accident.affectedPersonName ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Employee ID</label>
+										<p class="text-muted mb-0" th:text="${accident.affectedPersonEmployeeId ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Position</label>
+										<p class="text-muted mb-0" th:text="${accident.affectedPersonPosition ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Medical Attention</label>
+										<p class="mb-0">
+											<span class="badge" th:classappend="${accident.medicalAttentionRequired ? 'bg-danger' : 'bg-success'}" th:text="${accident.medicalAttentionRequired ? 'Yes - Required' : 'No'}"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Injury Type</label>
+										<p class="text-muted mb-0" th:text="${accident.injuryType ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Incident Details Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-warning text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-clipboard me-2"></i> Incident Details
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Cause of Accident</label>
+										<p class="text-muted mb-0" th:text="${accident.causeOfAccident ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">Witnesses</label>
+										<p class="text-muted mb-0" th:text="${accident.witnesses ?: 'None listed'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold text-dark">
+											<i class="fa fa-shield-alt me-2 text-primary"></i>Preventive Measures
+										</label>
+										<p class="text-muted mb-0" th:text="${accident.preventiveMeasures != null and accident.preventiveMeasures != '' ? accident.preventiveMeasures : 'None documented yet'}"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Sidebar Column -->
+				<div class="col-md-4">
+					<!-- Status Summary Card -->
+					<div class="card shadow-sm border-0 mb-4">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-tachometer-alt me-2"></i> Status Summary
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="mb-4 pb-3 border-bottom">
+								<p class="text-muted small mb-2">Current Status</p>
+								<p class="fw-bold mb-0">
+									<span class="badge fs-6" th:classappend="${accident.status == 'REPORTED' ? 'bg-info' : accident.status == 'UNDER_INVESTIGATION' ? 'bg-warning' : accident.status == 'RESOLVED' ? 'bg-success' : 'bg-secondary'}" th:text="${accident.status ?: 'N/A'}"></span>
+								</p>
+							</div>
+							<div class="mb-4 pb-3 border-bottom">
+								<p class="text-muted small mb-2">Severity Level</p>
+								<p class="fw-bold mb-0">
+									<span class="badge fs-6" th:classappend="${accident.severity == 'CRITICAL' ? 'bg-danger' : accident.severity == 'HIGH' ? 'bg-warning' : accident.severity == 'MEDIUM' ? 'bg-info' : 'bg-success'}" th:text="${accident.severity ?: 'N/A'}"></span>
+								</p>
+							</div>
+							<div class="mb-4 pb-3 border-bottom">
+								<p class="text-muted small mb-2">Reported Date</p>
+								<p class="fw-bold mb-0" th:text="${accident.createdAt != null ? #temporals.format(accident.createdAt, 'MMM dd, yyyy') : 'N/A'}"></p>
+							</div>
+							<div class="mb-0">
+								<p class="text-muted small mb-2">Last Updated</p>
+								<p class="fw-bold mb-0" th:text="${accident.updatedAt != null ? #temporals.format(accident.updatedAt, 'MMM dd, yyyy HH:mm') : 'N/A'}"></p>
+							</div>
+						</div>
+						<div class="card-footer bg-light border-top">
+							<button class="btn btn-sm btn-primary w-100">
+								<i class="fa fa-sync-alt me-2"></i> Update Status
+							</button>
+						</div>
+					</div>
+
+					<!-- Reported By Card -->
+					<div class="card shadow-sm border-0 mb-4">
+						<div class="card-header bg-gradient bg-info text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-user me-2"></i> Reported By
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="d-flex align-items-center">
+								<div class="avatar avatar-md me-3">
+									<img src="/assets/img/jm_avatar.jpg" alt="..." class="avatar-img rounded-circle">
+								</div>
+								<div>
+									<p class="fw-bold mb-1" th:text="${accident.reportedBy ?: 'Unknown User'}"></p>
+									<p class="text-muted small mb-0">Safety Reporter</p>
+									<small class="text-muted" th:text="${accident.createdAt != null ? #temporals.format(accident.createdAt, 'MMM dd, yyyy HH:mm') : 'N/A'}"></small>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Image card -->
+					<div class="card shadow-sm border-0 mb-4" th:if="${accident.accidentImages != null and accident.accidentImages != ''}">
+						<div class="card-header bg-gradient bg-success text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-images me-2"></i> Accident Photo
+							</div>
+						</div>
+						<div class="card-body p-3">
+							<div class="text-center">
+								<img th:src="@{/uploads/{imageName}(imageName=${accident.accidentImages})}" 
+									 alt="Accident Image" 
+									 class="img-fluid rounded shadow-sm" 
+									 style="max-width: 100%; max-height: 200px; object-fit: cover; border: 1px solid #e9ecef;"
+									 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+								<!-- <div class="text-muted" style="display: none; max-width: 100%; height: 200px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; border-radius: 0.25rem; border: 1px dashed #dee2e6;">
+									<div>
+										<i class="fa fa-image fa-2x mb-2" style="color: #adb5bd;"></i>
+										<p class="mt-2">Image not found</p>
+									</div>
+								</div> -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- Comments Section -->
+			<div class="row mt-5">
+				<div class="col-md-12">
+					<div class="card shadow-sm border-0">
+						<div class="card-header bg-gradient bg-dark text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-comments me-2"></i> Comments & Updates
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="comments-section mb-4">
+								<div class="comment mb-4 pb-3 border-bottom">
+									<div class="d-flex">
+										<div class="avatar me-3">
+											<img src="/assets/img/jm_avatar.jpg" alt="..." class="avatar-img rounded-circle">
+										</div>
+										<div class="flex-grow-1">
+											<div class="d-flex align-items-center justify-content-between mb-1">
+												<h6 class="fw-bold mb-0">Jane Doe</h6>
+												<small class="text-muted">2024-12-15 10:45 AM</small>
+											</div>
+											<p class="text-muted small mb-0">Initial accident report submitted. Employee treated and released. Witnesses interviewed.</p>
+											<div class="mt-2">
+												<button class="btn btn-link btn-sm text-primary p-0 me-3">
+													<i class="fa fa-thumbs-up me-1"></i> Like
+												</button>
+												<button class="btn btn-link btn-sm text-primary p-0">
+													<i class="fa fa-reply me-1"></i> Reply
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+								<div class="comment mb-4 pb-3 border-bottom">
+									<div class="d-flex">
+										<div class="avatar me-3">
+											<img src="/assets/img/jm_avatar.jpg" alt="..." class="avatar-img rounded-circle">
+										</div>
+										<div class="flex-grow-1">
+											<div class="d-flex align-items-center justify-content-between mb-1">
+												<h6 class="fw-bold mb-0">Robert Brown</h6>
+												<small class="text-muted">2024-12-16 09:15 AM</small>
+											</div>
+											<p class="text-muted small mb-0">Investigation commenced. Floor surface analysis scheduled. All cleaning procedures temporarily suspended.</p>
+											<div class="mt-2">
+												<button class="btn btn-link btn-sm text-primary p-0 me-3">
+													<i class="fa fa-thumbs-up me-1"></i> Like
+												</button>
+												<button class="btn btn-link btn-sm text-primary p-0">
+													<i class="fa fa-reply me-1"></i> Reply
+												</button>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+
+							<!-- Add Comment -->
+							<div class="add-comment mt-4 pt-3 border-top">
+								<h6 class="fw-bold mb-3">Add a Comment</h6>
+								<form>
+									<div class="form-group mb-3">
+										<textarea class="form-control form-control-lg" rows="3" placeholder="Write your update or comment..." style="resize: vertical;"></textarea>
+									</div>
+									<div class="d-flex gap-2">
+										<button type="submit" class="btn btn-primary">
+											<i class="fa fa-paper-plane me-2"></i> Post Comment
+										</button>
+										<button type="reset" class="btn btn-outline-secondary">
+											<i class="fa fa-times me-2"></i> Cancel
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Scripts -->
+	<script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+	<script src="/assets/js/core/popper.min.js"></script>
+	<script src="/assets/js/core/bootstrap.min.js"></script>
+	<script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+	<script src="/assets/js/plugin/chart.js/chart.min.js"></script>
+	<script src="/assets/js/plugin/jquery.sparkline/jquery.sparkline.min.js"></script>
+	<script src="/assets/js/plugin/chart-circle/circles.min.js"></script>
+	<script src="/assets/js/plugin/datatables/datatables.min.js"></script>
+	<script src="/assets/js/plugin/datatables/datatables.bootstrap4.min.js"></script>
+	<script src="/assets/js/plugin/jsvectormap/jsvectormap.min.js"></script>
+	<script src="/assets/js/plugin/jsvectormap/world.js"></script>
+	<script src="/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<script src="/assets/js/kaiadmin.min.js"></script>
+	<script src="/assets/js/setting-demo.js"></script>
+	<script src="/assets/js/demo.js"></script>
+</body>
+
+</html>

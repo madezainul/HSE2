@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Toolbox Meeting Details</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+
+	<!-- Custom Styles -->
+	<link rel="stylesheet" href="/css/custom-cards.css">
+
+	<!-- Toolbox Detail Script -->
+	<script src="/assets/js/custom/toolbox-detail.js"></script>
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<a href="/toolbox" class="btn btn-secondary btn-sm mb-3">
+						<i class="fa fa-arrow-left me-2"></i> Back to List
+					</a>
+					<h2 class="fw-bold mb-2 text-dark" th:text="'Toolbox Meeting: ' + ${meeting.code}">Toolbox Meeting Details</h2>
+					<p class="text-muted mb-0">
+						<i class="fa fa-calendar-alt me-2"></i>
+						<span th:text="${meeting.meetingDate != null ? #temporals.format(meeting.meetingDate, 'dd MMMM, yyyy') : 'N/A'}"></span>
+					</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<button type="button" class="btn btn-warning btn-round me-2" id="editToolboxBtn"
+						th:data-toolbox-code="${meeting.code}">
+						<i class="fa fa-edit me-2"></i> Edit
+					</button>
+					<button type="button" class="btn btn-danger btn-round" id="deleteToolboxBtn"
+						th:data-toolbox-code="${meeting.code}" onclick="deleteToolboxMeeting(event)">
+						<i class="fa fa-trash me-2"></i> Delete
+					</button>
+				</div>
+			</div>
+
+			<div class="row">
+				<!-- Main Details Column -->
+				<div class="col-md-8">
+					<!-- Meeting Information Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Meeting Information</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Meeting Code</label>
+										<p class="text-muted" th:text="${meeting.code}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Location</label>
+										<p class="text-muted" th:text="${meeting.location ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Date</label>
+										<p class="text-muted"
+											th:text="${meeting.meetingDate != null ? #temporals.format(meeting.meetingDate, 'dd MMMM, yyyy') : 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Status</label>
+										<p>
+											<span class="badge" th:classappend="${
+												meeting.status?.name() == 'COMPLETED' ? 'bg-success' :
+												meeting.status?.name() == 'CANCELLED' ? 'bg-danger' :
+												'bg-warning text-dark'
+											}" th:text="${meeting.status?.getDisplayName()}"></span>
+										</p>
+									</div>
+								</div>
+							</div>
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Time Started</label>
+										<p class="text-muted"
+											th:text="${meeting.timeStarted != null ? #temporals.format(meeting.timeStarted, 'HH:mm') : 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Time End</label>
+										<p class="text-muted"
+											th:text="${meeting.timeEnd != null ? #temporals.format(meeting.timeEnd, 'HH:mm') : '-'}"></p>
+									</div>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-md-12">
+									<div class="form-group">
+										<label class="form-label fw-bold">Notes / Agenda</label>
+										<p class="text-muted" th:text="${meeting.notes ?: 'No notes provided.'}"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Supervisor Details Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Supervisor Details</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-4">
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Supervisor Name</label>
+										<p class="text-muted" th:text="${meeting.supervisor ?: 'N/A'}"></p>
+									</div>
+								</div>
+								<div class="col-md-6">
+									<div class="form-group">
+										<label class="form-label fw-bold">Supervisor Employee ID</label>
+										<p class="text-muted" th:text="${meeting.supervisorEmployeeId ?: 'N/A'}"></p>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Sidebar Column -->
+				<div class="col-md-4">
+					<!-- Status Summary Card -->
+					<div class="card mb-4 shadow-sm border-0">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Summary</div>
+						</div>
+						<div class="card-body">
+							<div class="row mb-3">
+								<div class="col-6">
+									<p class="text-muted small mb-1">Status</p>
+									<p class="fw-bold mb-0">
+										<span class="badge" th:classappend="${
+											meeting.status?.name() == 'COMPLETED' ? 'bg-success' :
+											meeting.status?.name() == 'CANCELLED' ? 'bg-danger' :
+											'bg-warning text-dark'
+										}" th:text="${meeting.status?.getDisplayName()}"></span>
+									</p>
+								</div>
+								<div class="col-6">
+									<p class="text-muted small mb-1">Meeting Date</p>
+									<p class="fw-bold mb-0"
+										th:text="${meeting.meetingDate != null ? #temporals.format(meeting.meetingDate, 'dd/MM/yyyy') : 'N/A'}"></p>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-6">
+									<p class="text-muted small mb-1">Time Started</p>
+									<p class="fw-bold mb-0"
+										th:text="${meeting.timeStarted != null ? #temporals.format(meeting.timeStarted, 'HH:mm') : 'N/A'}"></p>
+								</div>
+								<div class="col-6">
+									<p class="text-muted small mb-1">Time End</p>
+									<p class="fw-bold mb-0"
+										th:text="${meeting.timeEnd != null ? #temporals.format(meeting.timeEnd, 'HH:mm') : '-'}"></p>
+								</div>
+							</div>
+							<div class="row mb-3">
+								<div class="col-6">
+									<p class="text-muted small mb-1">Created</p>
+									<p class="fw-bold mb-0"
+										th:text="${meeting.createdAt != null ? #temporals.format(meeting.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></p>
+								</div>
+								<div class="col-6">
+									<p class="text-muted small mb-1">Last Updated</p>
+									<p class="fw-bold mb-0"
+										th:text="${meeting.updatedAt != null ? #temporals.format(meeting.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></p>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Supervisor Info Card -->
+					<div class="card mb-4 shadow-sm border-0" th:if="${meeting.supervisor != null}">
+						<div class="card-header bg-gradient bg-primary text-white border-0">
+							<div class="card-title text-white mb-0">Supervisor</div>
+						</div>
+						<div class="card-body">
+							<div class="d-flex align-items-center">
+								<div class="avatar">
+									<img src="/assets/img/profile2.jpg" alt="Supervisor" class="avatar-img rounded-circle">
+								</div>
+								<div class="ms-3">
+									<p class="fw-bold mb-1" th:text="${meeting.supervisor}"></p>
+									<small class="text-muted" th:text="${meeting.supervisorEmployeeId ?: ''}"></small>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Document Attachments -->
+					<div class="card shadow-sm border-0 mb-4"
+						th:if="${meeting.files != null and !meeting.files.isEmpty()}">
+						<div class="card-header bg-gradient bg-secondary text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-paperclip me-2"></i> Attachments
+							</div>
+						</div>
+						<div class="card-body p-3">
+							<ul class="list-group list-group-flush">
+								<th:block th:each="file : ${meeting.files}">
+									<li th:if="${file.fileType.name() != 'IMAGE'}"
+										class="list-group-item d-flex align-items-center justify-content-between px-0">
+										<div>
+											<i class="fa fa-file-alt me-2" style="color: #6c757d;"></i>
+											<span th:text="${file.fileName}"></span>
+										</div>
+									<div class="d-flex gap-1">
+										<button th:if="${#strings.toLowerCase(file.fileName).endsWith('.pdf')}"
+											type="button" class="btn btn-sm btn-outline-info"
+											th:onclick="|openPdfModal('@{/file/{filePath}(filePath=${file.filePath})}')|">
+											<i class="fa fa-eye me-1"></i> View
+										</button>
+										<a th:href="@{/file/{filePath}(filePath=${file.filePath})}" target="_blank"
+											class="btn btn-sm btn-outline-primary">
+											<i class="fa fa-download me-1"></i> Download
+										</a>
+									</div>
+									</li>
+								</th:block>
+							</ul>
+						</div>
+					</div>
+
+					<!-- Photos Card -->
+					<div class="card shadow-sm border-0 mb-4"
+						th:if="${meeting.files != null and !meeting.files.isEmpty()}">
+						<div class="card-header bg-gradient bg-success text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-images me-2"></i> Meeting Photos
+							</div>
+						</div>
+						<div class="card-body p-3" style="max-height: 600px; overflow-y: auto;">
+							<div class="text-center">
+								<th:block th:each="file : ${meeting.files}">
+									<div th:if="${file.fileType.name() == 'IMAGE'}" class="mb-3">
+										<img th:src="@{/file/{filePath}(filePath=${file.filePath})}"
+											th:alt="${file.fileName}"
+											th:data-src="@{/file/{filePath}(filePath=${file.filePath})}"
+											class="img-fluid rounded shadow-sm"
+											style="max-width: 100%; max-height: 300px; object-fit: cover; border: 1px solid #e9ecef; cursor: pointer; transition: transform 0.2s ease;"
+											onclick="window.openZoomModal(this)"
+											onmouseover="this.style.transform='scale(1.02)'"
+											onmouseout="this.style.transform='scale(1)'"
+											onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+										<div style="display:none;" class="text-muted small mt-1">
+											<i class="fa fa-exclamation-triangle me-1"></i> Image unavailable
+										</div>
+									</div>
+								</th:block>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Image Zoom Modal -->
+		<div class="modal fade" id="imageZoomModal" tabindex="-1" aria-labelledby="imageZoomModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-fullscreen">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="imageZoomModalLabel">Image Preview</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body text-center d-flex align-items-center justify-content-center"
+						style="height: calc(100vh - 60px);">
+						<img id="zoomedImage" src="" alt="Zoomed Image"
+							style="max-width: 95%; max-height: 95%; object-fit: contain;">
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- PDF Viewer Modal -->
+		<div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel" aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="pdfViewerModalLabel">Document Preview</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body p-0">
+						<iframe id="pdfViewerFrame" src="" style="width: 100%; height: 80vh; border: none;"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Toolbox Meeting Modal Fragment -->
+		<div th:replace="fragments/toolbox-modal :: addToolboxModal"></div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script th:src="@{/assets/js/custom/toolbox-modal.js}"></script>
+
+		<script>
+			window.openPdfModal = function (url) {
+				document.getElementById('pdfViewerFrame').src = url;
+				new bootstrap.Modal(document.getElementById('pdfViewerModal')).show();
+			};
+			document.addEventListener('DOMContentLoaded', function () {
+				const pdfModal = document.getElementById('pdfViewerModal');
+				if (pdfModal) {
+					pdfModal.addEventListener('hidden.bs.modal', function () {
+						document.getElementById('pdfViewerFrame').src = '';
+					});
+				}
+			});
+		</script>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				if (typeof ToolboxModalModule !== 'undefined') {
+					ToolboxModalModule.init();
+				}
+			});
+		</script>
+	</th:block>
+</body>
+</html>

@@ -1,0 +1,200 @@
+/* ==========================================
+   CUSTOM CARD & LAYOUT STYLES
+   Reusable styles for accident detail page and other pages
+   ========================================== */
+
+/* Page Styling */
+.page-inner {
+	padding-top: 10px;
+}
+
+/* ==========================================
+   CARD IMPROVEMENTS
+   ========================================== */
+
+.card {
+	transition: all 0.3s ease;
+	border-radius: 0.5rem;
+}
+
+.card-header {
+	border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.bg-gradient {
+	background: linear-gradient(135deg, var(--bs-primary) 0%, var(--bs-primary) 100%) !important;
+}
+
+/* ==========================================
+   BADGE STYLING
+   ========================================== */
+
+.badge {
+	padding: 0.5rem 0.75rem;
+	font-weight: 600;
+}
+
+.badge.fs-6 {
+	font-size: 0.9rem !important;
+	padding: 0.5rem 1rem;
+}
+
+/* ==========================================
+   ICON STYLING
+   ========================================== */
+
+.form-label i {
+	opacity: 0.8;
+}
+
+/* ==========================================
+   TIMELINE STYLING
+   ========================================== */
+
+.timeline {
+	position: relative;
+}
+
+.timeline-item {
+	display: flex;
+	margin-bottom: 2rem;
+	position: relative;
+	padding-left: 40px;
+}
+
+.timeline-item:last-child {
+	margin-bottom: 0;
+}
+
+.timeline-marker {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 20px;
+	height: 20px;
+	border-radius: 50%;
+	border: 3px solid white;
+	box-shadow: 0 0 0 3px currentColor;
+}
+
+.timeline-marker.bg-success {
+	color: #2dce89;
+}
+
+.timeline-marker.bg-warning {
+	color: #f4c430;
+}
+
+.timeline-marker.bg-secondary {
+	color: #80888d;
+}
+
+.timeline-content {
+	text-align: left;
+}
+
+/* ==========================================
+   AVATAR STYLING
+   ========================================== */
+
+.avatar-md {
+	width: 50px;
+	height: 50px;
+}
+
+.avatar-md img {
+	width: 100%;
+	height: 100%;
+}
+
+/* ==========================================
+   COMMENTS SECTION
+   ========================================== */
+
+.comment {
+	transition: background-color 0.2s ease;
+}
+
+.comment:hover {
+	background-color: #f8f9fa;
+	border-radius: 0.3rem;
+	padding: 0.5rem;
+	margin-left: -0.5rem;
+	margin-right: -0.5rem;
+	margin-top: -0.5rem;
+}
+
+/* ==========================================
+   TEXT IMPROVEMENTS
+   ========================================== */
+
+.text-dark {
+	color: #2c3e50 !important;
+}
+
+/* ==========================================
+   FORM GROUP IMPROVEMENTS
+   ========================================== */
+
+.form-group {
+	margin-bottom: 0;
+}
+
+.form-label {
+	margin-bottom: 0.5rem;
+	font-size: 0.85rem;
+}
+
+/* Add visual hierarchy */
+.card-body > .row > .col-md-12 .form-group:last-child {
+	margin-bottom: 0;
+}
+
+/* ==========================================
+   BUTTON IMPROVEMENTS
+   ========================================== */
+
+.btn-primary {
+	background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+	border: none;
+}
+
+.btn-primary:hover {
+	background: linear-gradient(135deg, #0056b3 0%, #003d82 100%);
+	transform: translateY(-2px);
+	box-shadow: 0 0.5rem 1rem rgba(0, 123, 255, 0.3);
+}
+
+/* ==========================================
+   IMAGE CARD STYLING
+   ========================================== */
+
+.card-body img {
+	transition: transform 0.3s ease;
+}
+
+.card-body img:hover {
+	transform: scale(1.02);
+}
+
+/* ==========================================
+   CARD FOOTER STYLING
+   ========================================== */
+
+.card-footer {
+	border-top: 1px solid #e9ecef;
+}
+
+/* ==========================================
+   RESPONSIVE IMPROVEMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+	.page-inner {
+		padding: 5px;
+	}
+
+	.card {
+		margin-bottom: 1rem !important;
+	}
+}

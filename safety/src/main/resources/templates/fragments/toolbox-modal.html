@@ -1,0 +1,151 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+    <!-- Add Toolbox Meeting Modal Fragment -->
+    <div class="modal fade" id="addToolboxModal" th:fragment="addToolboxModal" tabindex="-1"
+        aria-labelledby="addToolboxModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addToolboxModalLabel">Record Toolbox Meeting</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="addToolboxForm" enctype="multipart/form-data">
+                    <!-- Hidden field used in EDIT mode -->
+                    <input type="hidden" id="toolboxCodeHidden" value="">
+
+                    <div class="modal-body">
+
+                        <!-- Row 1: Location & Date -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="toolboxLocation" class="form-label">
+                                        Location <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" class="form-control" id="toolboxLocation"
+                                        name="location" placeholder="e.g. Site A – Block 3" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="toolboxDate" class="form-label">
+                                        Date <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="date" class="form-control" id="toolboxDate"
+                                        name="meetingDate" required>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Time Started, Time End & Supervisor -->
+                        <div class="row mb-3">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="toolboxTimeStarted" class="form-label">
+                                        Time Started <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="time" class="form-control" id="toolboxTimeStarted"
+                                        name="timeStarted" required>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="toolboxTimeEnd" class="form-label">Time End</label>
+                                    <input type="time" class="form-control" id="toolboxTimeEnd"
+                                        name="timeEnd">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="toolboxSupervisorName" class="form-label">
+                                        Supervisor
+                                    </label>
+                                    <div style="position: relative;">
+                                        <input type="text" class="form-control" id="toolboxSupervisorName"
+                                            placeholder="Search supervisor by name or ID" autocomplete="off" />
+                                        <div id="toolboxSupervisorDropdown" class="dropdown-menu"
+                                            style="position: absolute; left: 0; right: 0; width: 100%;
+                                                   top: calc(100% + 0.125rem); display: none;
+                                                   max-height: 200px; overflow-y: auto; min-width: unset;
+                                                   padding: 0.5rem 0;
+                                                   border-radius: var(--bs-border-radius);
+                                                   box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15);">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="supervisorEmployeeId" id="toolboxSupervisorHidden" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notes -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="toolboxNotes" class="form-label">Notes / Agenda</label>
+                                <textarea class="form-control" id="toolboxNotes" name="notes" rows="3"
+                                    placeholder="Topics discussed, safety reminders, key points..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Status -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="toolboxStatus" class="form-label">
+                                    Status <span class="text-danger">*</span>
+                                </label>
+                                <select class="form-select" id="toolboxStatus" name="status" required>
+                                    <option value="" disabled selected>Select status</option>
+                                    <option value="DRAFT">Draft</option>
+                                    <option value="COMPLETED">Completed</option>
+                                    <option value="CANCELLED">Cancelled</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- File Upload Section -->
+                        <hr>
+                        <h6 class="mb-3 text-muted">
+                            Attachments
+                            <small class="fw-normal">(optional, can be added after saving)</small>
+                        </h6>
+
+                        <!-- Photos -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="toolboxImages" class="form-label">
+                                    <i class="fa fa-image me-1"></i> Meeting Photos
+                                </label>
+                                <input type="file" class="form-control" id="toolboxImages"
+                                    name="toolboxImages" accept=".jpg,.jpeg,.png,.webp" multiple>
+                                <div class="form-text">Accepted: JPG, PNG, WEBP. Max 10 MB per file.</div>
+                            </div>
+                        </div>
+
+                        <!-- Documents -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="toolboxDocuments" class="form-label">
+                                    <i class="fa fa-paperclip me-1"></i> Attachments / Documents
+                                </label>
+                                <input type="file" class="form-control" id="toolboxDocuments"
+                                    name="toolboxDocuments" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple>
+                                <div class="form-text">Accepted: PDF, DOC, DOCX, XLS, XLSX. Max 10 MB per file.</div>
+                            </div>
+                        </div>
+
+                        <!-- Error Alert -->
+                        <div id="toolboxFormError" class="alert alert-danger d-none" role="alert"></div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitToolboxBtn">
+                            <span id="submitToolboxSpinner"
+                                class="spinner-border spinner-border-sm me-1 d-none"
+                                role="status" aria-hidden="true"></span>
+                            <i class="fa fa-save me-1"></i> Save Meeting
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</th:block>

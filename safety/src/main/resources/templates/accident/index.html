@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Incident Management</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+
+	<!-- CSS Just for demo purpose, don't include it in your project -->
+	<link rel="stylesheet" href="/assets/css/demo.css">
+</head>
+
+<body xmlns:th="http://www.thymeleaf.org">
+	<div layout:fragment="content">
+		<div th:replace="~{fragments/accident-modal :: addAccidentModal}"></div>
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<h3 class="fw-bold mb-3">Accidents</h3>
+					<p class="text-muted">Manage and track workplace accidents</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<button type="button" class="btn btn-primary btn-round mr-2" data-toggle="modal"
+						data-target="#importModal">
+						<i class="fa fa-download mr-1"></i> Import
+					</button>
+					<button type="button" class="btn btn-primary btn-round dropdown-toggle mr-2" id="exportDropdown"
+						data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						<i class="fa fa-upload mr-1"></i> Export
+					</button>
+					<div class="dropdown-menu dropdown-menu-right mt-2" aria-labelledby="exportDropdown">
+						<a class="dropdown-item" href="#" id="exportExcel">
+							<i class="fa fa-file-excel mr-2 text-success"></i> Excel
+						</a>
+						<a class="dropdown-item" href="#" id="exportPdf">
+							<i class="fa fa-file-pdf mr-2 text-danger"></i> PDF
+						</a>
+					</div>
+					<button type="button" id="reportAccidentBtn" class="btn btn-primary btn-round"
+						data-bs-toggle="modal" data-bs-target="#addAccidentModal">
+						<i class="fa fa-plus me-2"></i> Report New Accident
+					</button>
+				</div>
+			</div>
+
+
+			<!-- Accidents Table -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card">
+						<div class="card-header">
+							<!-- Filters Section -->
+							<div class="d-flex align-items-center justify-content-end">
+								<div class="dropdown form-inline me-2">
+									<button class="btn btn-primary dropdown-toggle" type="button"
+										id="filterDropdownBtn" data-bs-toggle="dropdown" aria-haspopup="true"
+										aria-expanded="false" style="padding: 0.375rem 0.5rem;">
+										<i class="fa fa-filter"></i> Filter
+									</button>
+									<div class="dropdown-menu p-3" aria-labelledby="filterDropdownBtn"
+										style="min-width: 350px; max-width: 400px; width: 100%;">
+										<div class="form-group pb-0">
+											<label class="form-label small d-block">Search</label>
+											<div class="input-icon w-100">
+												<input type="text" name="keyword"
+													class="form-control form-control-sm w-100"
+													placeholder="Accident ID, Details, Action...">
+												<span class="input-icon-addon"><i class="fa fa-search"></i></span>
+											</div>
+										</div>
+										<div class="form-group pb-0">
+											<label class="form-label small d-block">Report Date</label>
+											<div class="input-group input-daterange w-100">
+												<input type="date" name="reportDateFrom"
+													class="form-control form-control-sm" placeholder="From">
+												<div class="input-group-prepend input-group-append">
+													<span class="input-group-text">to</span>
+												</div>
+												<input type="date" name="reportDateTo"
+													class="form-control form-control-sm" placeholder="To">
+											</div>
+										</div>
+										<div class="form-group pb-0">
+											<label class="form-label small d-block">Assignee</label>
+											<div class="position-relative w-100">
+												<input type="text" class="form-control form-control-sm w-100"
+													id="filterAssigneeInput" placeholder="Search by name or ID"
+													autocomplete="off" />
+												<div id="filterAssigneeDropdown" class="dropdown-menu w-100"
+													style="position: absolute; z-index: 1000; display: none; max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-top: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+												</div>
+											</div>
+											<select class="d-none" name="assigneeEmpId" id="filterAssigneeSelect">
+												<option value=""></option>
+											</select>
+											<input type="hidden" name="assigneeEmpId" id="filterAssigneeHidden" />
+										</div>
+										<div class="form-group pb-0">
+											<label class="form-label small d-block">Equipment(s)</label>
+											<select id="equipmentSelect" name="equipmentCode" multiple
+												style="display: none;">
+												<option value=""></option>
+											</select>
+											<div id="equipmentInput" style="min-height: calc(1.5em + 0.5rem + 2px); /* matches .form-control-sm */
+													padding: 0.25rem 0.5rem;
+													font-size: 0.875rem;
+													line-height: 1.5;
+													border: 1px solid #ced4da;
+													border-radius: 0.2rem;
+													background-color: #fff;
+													width: 100%;">
+												<div class="tag-list" id="equipmentTagList"></div>
+												<div class="position-relative w-100">
+													<input type="text" id="equipmentTagSearch"
+														class="tag-input-field border-0 w-100"
+														placeholder="Add equipment..." autocomplete="off"
+														style="outline: none; padding: 0; margin: 0; height: auto; min-height: auto; box-shadow: none;">
+													<div id="equipmentTagSearchDropdown" class="dropdown-menu w-100"
+														style="position: absolute; z-index: 1000; display: none; max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-top: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
+													</div>
+												</div>
+											</div>
+										</div>
+										<div class="form-group pb-0">
+											<label class="form-label small d-block">Category</label>
+											<select name="group" class="form-control form-control-sm w-100">
+												<option value="">All Category</option>
+											</select>
+										</div>
+										<div class="form-group">
+											<label class="form-label small d-block">Status</label>
+
+											<!-- Hidden input to hold comma-separated values: "OPEN,IN_PROGRESS" -->
+											<input type="hidden" name="state" id="statusHiddenInput">
+
+											<!-- Hidden select for data source (not submitted) -->
+											<select id="statusSelect" multiple style="display: none;" disabled>
+											</select>
+
+											<div id="statusTagInput" style="
+													min-height: calc(1.5em + 0.5rem + 2px);
+													padding: 0.25rem 0.5rem;
+													font-size: 0.875rem;
+													line-height: 1.5;
+													border: 1px solid #ced4da;
+													border-radius: 0.2rem;
+													background-color: #fff;
+													width: 100%;">
+												<div id="statusTagList"
+													style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0; padding: 0; list-style: none; width: 100%;">
+												</div>
+												<div class="position-relative w-100">
+													<input type="text" id="statusTagSearch"
+														style="border: none; outline: none; font-size: 0.875rem; padding: 0; margin: 0; height: auto; min-height: auto; background: transparent; width: 100%; box-shadow: none;"
+														placeholder="Add status..." list="statusOptions"
+														autocomplete="off">
+												</div>
+											</div>
+
+											<!-- Datalist for autocomplete (optional but nice) -->
+											<datalist id="statusOptions">
+											</datalist>
+										</div>
+										<!-- </div> -->
+										<button type="button" class="btn btn-primary btn-sm btn-block mt-2"
+											id="applyFilters">
+											<i class="fas fa-check"></i> Apply Filters
+										</button>
+										<button type="button" class="btn btn-secondary btn-sm btn-block mt-2"
+											id="resetFilters">
+											<i class="fas fa-undo"></i> Reset
+										</button>
+									</div>
+								</div>
+								<!-- End of Filters Section -->
+								<!-- columns filter section -->
+								<div class="dropdown me-2">
+									<button class="btn btn-primary dropdown-toggle" type="button" id="columnToggleDropdown"
+										data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+										style="padding: 0.375rem 0.5rem;">
+										<i class="fas fa-th-list"></i>
+									</button>
+									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="columnToggleDropdown"
+										style="min-width: 250px; max-height: 300px; overflow-y: auto; padding: 0.5rem 0;">
+										<h6 class="dropdown-header px-3 py-2">Show / Hide Columns</h6>
+										<div id="column-toggle-list"></div>
+									</div>
+								</div>
+								<!-- columns filter section end -->
+								<!-- ascending/descending sort button -->
+								<div class="dropdown me-2">
+                                    <button class="btn btn-primary dropdown-toggle" type="button" id="sortDropdown"
+                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        style="padding: 0.375rem 0.5rem;">
+                                        <i class="fa fa-sort"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="sortDropdown"
+                                        style="min-width: 200px;">
+                                        <input type="hidden" name="sortBy" id="sortByInput" th:value="${sortBy}" />
+                                        <input type="hidden" name="asc" id="ascInput" th:value="${asc}" />
+
+                                        <h6 class="dropdown-header">Sort Column</h6>
+                                        <div id="sort-column-container"></div>
+                                        <div class="dropdown-divider"></div>
+                                        <h6 class="dropdown-header">Sort Order</h6>
+                                        <a class="dropdown-item" href="#" data-asc="true"
+                                            th:classappend="${asc == true} ? 'active' : ''">Ascending</a>
+                                        <a class="dropdown-item" href="#" data-asc="false"
+                                            th:classappend="${asc == false} ? 'active' : ''">Descending</a>
+                                    </div>
+                                </div>
+								<!-- ascending/descending sort button end -->
+								<!-- page size selector -->
+								<div class="form-group">
+                                    <label for="pageSizeSelect" class="sr-only">Items per page:</label>
+                                    <select name="size" id="pageSizeSelect" class="form-control form-control">
+                                        <option value="10" th:selected="${pageSize == '10'}">10</option>
+                                        <option value="30" th:selected="${pageSize == '30'}">30</option>
+                                        <option value="50" th:selected="${pageSize == '50'}">50</option>
+                                        <option value="100" th:selected="${pageSize == '100'}">100</option>
+                                        <option value="300" th:selected="${pageSize == '300'}">300</option>
+                                        <option value="500" th:selected="${pageSize == '500'}">500</option>
+                                    </select>
+                                </div>
+								<!-- page size selector end -->
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-hover table-responsive table-head-bg-info">
+									<thead>
+										<tr>
+											<th>Code</th>
+											<th>Date</th>
+											<th>Area</th>
+											<th>Description</th>
+											<th>Severity</th>
+											<th>Status</th>
+											<th>Reported By</th>
+											<th>Actions</th>
+										</tr>
+									</thead>
+									<tbody>
+										<!-- Dynamic Accident Data from Database -->
+										<tr th:each="accident : ${accidentsPage.content}">
+											<td><strong th:text="${accident.code}"></strong></td>
+											<td
+												th:text="${accident.accidentDate != null ? #temporals.format(accident.accidentDate, 'yyyy-MM-dd') : ''}">
+											</td>
+											<td th:text="${accident.area != null ? accident.area.name : 'N/A'}"></td>
+											<td th:text="${#strings.abbreviate(accident.description ?: '', 50)}"></td>
+											<td>
+												<span class="badge" th:classappend="${
+													accident.severity == 'CRITICAL' ? 'bg-danger' :
+													accident.severity == 'HIGH' ? 'bg-warning' :
+													accident.severity == 'MEDIUM' ? 'bg-info' :
+													'bg-success'
+												}" th:text="${accident.severity ?: ''}"></span>
+											</td>
+											<td>
+												<span class="badge" th:classappend="${
+													accident.status == 'REPORTED' ? 'bg-info' :
+													accident.status == 'UNDER_INVESTIGATION' ? 'bg-warning' :
+													accident.status == 'RESOLVED' ? 'bg-success' :
+													'bg-secondary'
+												}" th:text="${accident.status ?: ''}"></span>
+											</td>
+											<td th:text="${accident.reportedBy ?: ''}"></td>
+											<td>
+												<a th:href="@{/observation/accident/{id}(id=${accident.code})}"
+													class="btn btn-sm btn-info me-2" title="View Details">
+													<i class="fa fa-eye"></i>
+												</a>
+												<a href="#" class="btn btn-sm btn-warning me-2" title="Edit">
+													<i class="fa fa-pencil"></i>
+												</a>
+												<a href="#" class="btn btn-sm btn-danger" title="Delete">
+													<i class="fa fa-trash"></i>
+												</a>
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Pagination -->
+			<div class="row">
+				<div class="col-md-12">
+					<nav aria-label="Page navigation">
+						<ul class="pagination justify-content-center">
+							<li class="page-item disabled">
+								<a class="page-link" href="#" tabindex="-1">Previous</a>
+							</li>
+							<li class="page-item active"><a class="page-link" href="#">1</a></li>
+							<li class="page-item"><a class="page-link" href="#">2</a></li>
+							<li class="page-item"><a class="page-link" href="#">3</a></li>
+							<li class="page-item">
+								<a class="page-link" href="#">Next</a>
+							</li>
+						</ul>
+					</nav>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Custom Scripts for Accident Page -->
+	<th:block layout:fragment="scripts">
+		<script th:src="@{/assets/js/custom/accident-index.js}"></script>
+		<script th:src="@{/assets/js/custom/accident-modal.js}"></script>
+	</th:block>
+
+	<script src="/assets/js/plugin/sweetalert/sweetalert.min.js"></script>
+	<!-- setting-demo.js and demo.js removed from incident page as they try to initialize charts that don't exist here -->
+	<script src="/assets/js/custom/accident.js"></script>
+	<script>
+		// Global handler for accident form submission (fallback)
+		function handleAccidentFormSubmit(event) {
+			event.preventDefault();
+			event.stopPropagation();
+			
+			if (typeof AccidentModule !== 'undefined' && typeof AccidentModule.handleFormSubmit === 'function') {
+				console.log('Calling AccidentModule.handleFormSubmit');
+				return AccidentModule.handleFormSubmit(event);
+			} else {
+				console.error('AccidentModule or handleFormSubmit not available');
+				alert('Error: Module not loaded. Please refresh the page.');
+				return false;
+			}
+		}
+		
+		// Set redirect URL when modal is opened from this page
+		document.addEventListener('show.bs.modal', function (event) {
+			const modal = event.target;
+			if (modal && modal.id === 'addAccidentModal') {
+				console.log('[Accident Index] Modal opened, setting redirect URL to accident index');
+				const redirectUrlInput = document.getElementById('redirectUrl');
+				if (redirectUrlInput) {
+					redirectUrlInput.value = '/observation/accident';
+					console.log('[Accident Index] redirectUrl set to: /observation/accident');
+				}
+			}
+		});
+		
+		// Initialize Accident Module when DOM is ready
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', function() {
+				if (typeof AccidentModule !== 'undefined') {
+					AccidentModule.init();
+				}
+			});
+		} else {
+			// DOM is already loaded
+			if (typeof AccidentModule !== 'undefined') {
+				AccidentModule.init();
+			}
+		}
+	</script>
+	<script src="/assets/js/kaiadmin.min.js"></script>
+	<script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+	<script src="/assets/js/core/popper.min.js"></script>
+	<script src="/assets/js/core/bootstrap.min.js"></script>
+</body>
+
+</html>

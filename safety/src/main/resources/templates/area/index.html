@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Areas Management</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+	<link rel="stylesheet" href="/assets/css/demo.css">
+</head>
+
+<body>
+<div layout:fragment="content">
+	<!-- Area Add / Edit Modal -->
+	<div th:replace="~{fragments/area-modal :: areaModal}"></div>
+
+	<div class="page-inner">
+		<!-- Header Section -->
+		<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+			<div>
+				<h3 class="fw-bold mb-3" th:text="${pageTitle}">Areas Management</h3>
+				<p class="text-muted">Manage and configure work areas and locations</p>
+			</div>
+			<div class="ms-md-auto py-2 py-md-0">
+				<button type="button" class="btn btn-primary btn-round" id="addAreaBtn">
+					<i class="fa fa-plus me-2"></i> Add New Area
+				</button>
+			</div>
+		</div>
+
+		<!-- Areas Table -->
+		<div class="row">
+			<div class="col-md-12">
+				<div class="card">
+					<div class="card-header">
+						<div class="d-flex align-items-center justify-content-between">
+							<h4 class="card-title">
+								Areas List
+								<span class="badge badge-primary ms-2" th:text="${areas != null ? areas.size() : 0} + ' Total'">0 Total</span>
+							</h4>
+							<div class="btn-group" role="group">
+								<button type="button" class="btn btn-sm btn-success me-3" id="exportBtn" disabled>
+									<i class="fa fa-download me-1"></i> Export
+								</button>
+								<button type="button" class="btn btn-sm btn-danger" id="deleteBtn" disabled>
+									<i class="fa fa-trash me-1"></i> Delete Selected
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="card-body">
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-check">
+									<input class="form-check-input" type="checkbox" id="selectAllCheckbox" name="selectAll">
+									<label class="form-check-label" for="selectAllCheckbox">
+										Select All (<span id="selectedCount">0</span> selected)
+									</label>
+								</div>
+							</div>
+						</div>
+
+						<div class="table-responsive">
+							<table class="table table-striped table-hover">
+								<thead>
+									<tr>
+										<th>
+											<input type="checkbox" class="form-check-input" name="areaCheckbox">
+										</th>
+										<th>Code</th>
+										<th>Name</th>
+										<th>Description</th>
+										<th>Status</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr th:each="area : ${areas}" th:id="${'area-' + area.id}">
+										<td>
+											<input type="checkbox" class="form-check-input area-checkbox" th:value="${area.id}">
+										</td>
+										<td th:text="${area.code}">CODE</td>
+										<td th:text="${area.name}">Name</td>
+										<td th:text="${area.description ?: '-'}">Description</td>
+										<td>
+											<span th:if="${area.status == 'ACTIVE'}" class="badge bg-success">ACTIVE</span>
+											<span th:if="${area.status == 'INACTIVE'}" class="badge bg-secondary">INACTIVE</span>
+											<span th:if="${area.status == 'UNDER_MAINTENANCE'}" class="badge bg-warning text-dark">UNDER MAINTENANCE</span>
+										</td>
+										<td>
+											<!-- <a th:href="@{/areas/{id}(id=${area.id})}" class="btn btn-sm btn-primary">
+												<i class="fa fa-eye"></i>
+											</a> -->
+											<button type="button" class="btn btn-sm btn-warning" onclick="editArea(this)" th:data-id="${area.id}">
+												<i class="fa fa-edit"></i>
+											</button>
+										</td>
+									</tr>
+									<tr th:if="${#lists.isEmpty(areas)}">
+										<td colspan="6" class="text-center text-muted py-4">
+											No areas found
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div> <!-- end page-inner -->
+</div>
+
+<th:block layout:fragment="scripts">
+	<script th:src="@{/assets/js/custom/area-modal.js}"></script>
+</th:block>
+
+
+</body>
+</html>

@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Register - Safety Management System</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<link rel="stylesheet" href="/assets/css/fontawesome-custom.css">
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+	<link rel="stylesheet" href="/assets/css/demo.css">
+
+	<style>
+		.register-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			padding: 20px;
+		}
+
+		.register-card {
+			background: white;
+			border-radius: 10px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+			width: 100%;
+			max-width: 450px;
+			padding: 40px;
+		}
+
+		.register-header {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.register-header i {
+			font-size: 80px;
+			margin-bottom: 15px;
+			display: block;
+			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.register-header img {
+			height: 40px;
+			margin-bottom: 15px;
+		}
+
+		.register-header h1 {
+			font-size: 24px;
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 5px;
+		}
+
+		.register-header p {
+			color: #999;
+			font-size: 14px;
+		}
+
+		.form-group {
+			margin-bottom: 18px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 8px;
+			color: #333;
+			font-weight: 500;
+			font-size: 14px;
+		}
+
+		.form-group input,
+		.form-group select {
+			width: 100%;
+			padding: 12px 15px;
+			border: 1px solid #ddd;
+			border-radius: 6px;
+			font-size: 14px;
+			transition: border-color 0.3s;
+			font-family: inherit;
+		}
+
+		.form-group input:focus,
+		.form-group select:focus {
+			outline: none;
+			border-color: #667eea;
+			box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+		}
+
+		.form-group input::placeholder {
+			color: #bbb;
+		}
+
+		.form-group input.is-invalid,
+		.form-group select.is-invalid {
+			border-color: #dc3545;
+			background-color: #fff5f5;
+		}
+
+		.form-group small.text-danger {
+			display: block;
+			color: #dc3545;
+			margin-top: 5px;
+			font-size: 12px;
+		}
+
+		.form-row {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 15px;
+		}
+
+		.form-row .form-group {
+			margin-bottom: 0;
+		}
+
+		.terms-checkbox,
+		.no-login-checkbox {
+			display: flex;
+			align-items: flex-start;
+			margin-bottom: 20px;
+			font-size: 13px;
+		}
+
+		.no-login-checkbox {
+			background-color: #fff8e1;
+			border: 1px solid #ffe082;
+			border-radius: 6px;
+			padding: 10px 12px;
+			color: #795548;
+		}
+
+		.no-login-checkbox input[type="checkbox"] {
+			margin-top: 2px;
+			margin-right: 8px;
+			cursor: pointer;
+			flex-shrink: 0;
+			accentColor: #f59e0b;
+		}
+
+		.terms-checkbox input[type="checkbox"] {
+			margin-top: 4px;
+			margin-right: 8px;
+			cursor: pointer;
+			flex-shrink: 0;
+		}
+
+		.terms-checkbox a {
+			color: #667eea;
+			text-decoration: none;
+		}
+
+		.terms-checkbox a:hover {
+			text-decoration: underline;
+		}
+
+		.btn-register {
+			width: 100%;
+			padding: 12px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-weight: 600;
+			font-size: 16px;
+			cursor: pointer;
+			transition: transform 0.2s, box-shadow 0.2s;
+			margin-bottom: 20px;
+		}
+
+		.btn-register:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+		}
+
+		.btn-register:active {
+			transform: translateY(0);
+		}
+
+		.register-footer {
+			text-align: center;
+			padding-top: 20px;
+			border-top: 1px solid #eee;
+		}
+
+		.register-footer p {
+			color: #666;
+			font-size: 14px;
+		}
+
+		.register-footer a {
+			color: #667eea;
+			text-decoration: none;
+			font-weight: 600;
+		}
+
+		.register-footer a:hover {
+			text-decoration: underline;
+		}
+
+		.error-message {
+			background-color: #f8d7da;
+			color: #721c24;
+			padding: 12px 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			font-size: 14px;
+			border: 1px solid #f5c6cb;
+		}
+
+		.success-message {
+			background-color: #d4edda;
+			color: #155724;
+			padding: 12px 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			font-size: 14px;
+			border: 1px solid #c3e6cb;
+		}
+
+		.password-strength {
+			margin-top: 8px;
+			height: 4px;
+			background: #eee;
+			border-radius: 2px;
+			overflow: hidden;
+		}
+
+		.password-strength-bar {
+			height: 100%;
+			width: 0;
+			transition: width 0.3s, background-color 0.3s;
+		}
+
+		.password-strength-bar.weak {
+			width: 33%;
+			background-color: #dc3545;
+		}
+
+		.password-strength-bar.medium {
+			width: 66%;
+			background-color: #ffc107;
+		}
+
+		.password-strength-bar.strong {
+			width: 100%;
+			background-color: #28a745;
+		}
+
+		.profile-picture-preview {
+			width: 90px;
+			height: 90px;
+			border-radius: 50%;
+			object-fit: cover;
+			border: 3px solid #ddd;
+			display: block;
+			margin: 0 auto 10px auto;
+			cursor: pointer;
+		}
+
+		.profile-picture-wrapper {
+			text-align: center;
+			margin-bottom: 18px;
+		}
+
+		.profile-picture-wrapper label.upload-label {
+			display: inline-block;
+			font-size: 12px;
+			color: #667eea;
+			cursor: pointer;
+			text-decoration: underline;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="register-container">
+		<div class="register-card">
+			<div class="register-header">
+				<i class="fas fa-hard-hat" style="color: #09d331;"></i>
+				<h1>Create Account</h1>
+				<p>Join Safety Management System</p>
+			</div>
+
+			<!-- Error Message -->
+			<div th:if="${error}">
+				<div class="error-message">
+					<i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}">Registration failed. Please try again.</span>
+				</div>
+			</div>
+
+			<!-- Success Message -->
+			<div th:if="${param.success}">
+				<div class="success-message">
+					<i class="fas fa-check-circle"></i> Account created successfully! Please log in.
+				</div>
+			</div>
+
+			<form th:action="@{/auth/register}" method="post" id="registerForm" autocomplete="off"
+				th:object="${registerRequest}" enctype="multipart/form-data">
+
+				<!-- Profile Picture -->
+				<div class="profile-picture-wrapper">
+					<img id="profilePreview" src="/assets/img/no_image.png" alt="Profile Picture" class="profile-picture-preview"
+						onclick="document.getElementById('profilePicture').click()">
+					<input type="file" id="profilePicture" name="profilePicture" accept="image/*" style="display:none">
+					<label class="upload-label" for="profilePicture">Click picture to upload (optional)</label>
+				</div>
+				<!-- Full Name -->
+				<div class="form-group">
+					<label for="fullName">Full Name</label>
+					<input type="text" id="fullName" th:field="*{fullName}" placeholder="Enter your full name" required th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid' : ''">
+					<small th:if="${#fields.hasErrors('fullName')}" class="text-danger" th:errors="*{fullName}"></small>
+				</div>
+
+				<!-- Employee ID -->
+				<div class="form-group">
+					<label for="employeeId">Employee ID</label>
+					<input type="text" id="employeeId" th:field="*{employeeId}" placeholder="Enter your employee ID" required th:classappend="${#fields.hasErrors('employeeId')} ? 'is-invalid' : ''">
+					<small th:if="${#fields.hasErrors('employeeId')}" class="text-danger" th:errors="*{employeeId}"></small>
+				</div>
+
+				<!-- Email -->
+				<div class="form-group">
+					<label for="email">Email Address <span style="color: #999; font-size: 12px;">(Optional)</span></label>
+					<input type="email" id="email" th:field="*{email}" placeholder="Enter your email (optional)" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''">
+					<small th:if="${#fields.hasErrors('email')}" class="text-danger" th:errors="*{email}"></small>
+				</div>
+
+				<!-- Username -->
+				<div class="form-group">
+					<label for="username">Username</label>
+					<input type="text" id="username" th:field="*{username}" placeholder="Choose a username" required th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''">
+					<small th:if="${#fields.hasErrors('username')}" class="text-danger" th:errors="*{username}"></small>
+				</div>
+
+				<!-- Department & Role -->
+				<div class="form-row">
+					<div class="form-group">
+						<label for="department">Department</label>
+						<select id="department" th:field="*{department}" required th:classappend="${#fields.hasErrors('department')} ? 'is-invalid' : ''">
+							<option value="">Select Department</option>
+							<option value="admin">Administration</option>
+							<option value="safety">Safety</option>
+							<option value="operations">Operations</option>
+							<option value="hr">Human Resources</option>
+							<option value="it">IT</option>
+							<option value="qc">QC</option>
+							<option value="production">Production</option>
+							<option value="maintenance">Maintenance</option>
+						</select>
+						<small th:if="${#fields.hasErrors('department')}" class="text-danger" th:errors="*{department}"></small>
+					</div>
+					<div class="form-group">
+						<label for="role">Role</label>
+						<select id="role" th:field="*{role}" required th:classappend="${#fields.hasErrors('role')} ? 'is-invalid' : ''">
+							<option value="">Select Role</option>
+							<option value="employee">Employee</option>
+							<option value="user">User</option>
+							<option value="manager">Manager</option>
+							<option value="admin">Administrator</option>
+						</select>
+						<small th:if="${#fields.hasErrors('role')}" class="text-danger" th:errors="*{role}"></small>
+					</div>
+				</div>
+
+				<!-- No Login Required Checkbox -->
+				<div class="no-login-checkbox">
+					<input type="checkbox" id="noLoginRequired" th:field="*{noLoginRequired}">
+					<label for="noLoginRequired">
+						<strong>This user does not need to login</strong><br>
+						<span style="font-size: 12px;">Check this if the user only appears in records and will not access the system.</span>
+					</label>
+				</div>
+
+				<!-- Password (hidden when no-login is checked) -->
+				<div class="form-group" id="passwordSection">
+					<label for="password">Password</label>
+					<input type="password" id="password" th:field="*{password}"
+						placeholder="Create a strong password" th:classappend="${#fields.hasErrors('password')} ? 'is-invalid' : ''">
+					<div class="password-strength">
+						<div class="password-strength-bar" id="strengthBar"></div>
+					</div>
+					<small style="color: #999; font-size: 12px;">
+						Minimum 8 characters, at least one uppercase, one lowercase, and one number
+					</small>
+					<small th:if="${#fields.hasErrors('password')}" class="text-danger" th:errors="*{password}"></small>
+				</div>
+
+				<!-- Confirm Password (hidden when no-login is checked) -->
+				<div class="form-group" id="confirmPasswordSection">
+					<label for="confirmPassword">Confirm Password</label>
+					<input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+						placeholder="Confirm your password" th:classappend="${#fields.hasErrors('confirmPassword')} ? 'is-invalid' : ''">
+					<small th:if="${#fields.hasErrors('confirmPassword')}" class="text-danger" th:errors="*{confirmPassword}"></small>
+				</div>
+
+				<!-- Terms & Conditions -->
+				<div class="terms-checkbox">
+					<input type="checkbox" id="terms" th:field="*{agreeToTerms}" required>
+					<label for="terms">I agree to the <a href="/terms">Terms and Conditions</a> and <a
+							href="/privacy">Privacy Policy</a></label>
+					<small th:if="${#fields.hasErrors('agreeToTerms')}" class="text-danger" th:errors="*{agreeToTerms}"></small>
+				</div>
+
+				<!-- Register Button -->
+				<button type="submit" class="btn-register">
+					<i class="fas fa-user-plus"></i> Create Account
+				</button>
+			</form>
+
+			<!-- Footer -->
+			<div class="register-footer">
+				<p>Already have an account? <a href="/auth/login">Sign in here</a></p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+	<script src="/assets/js/core/popper.min.js"></script>
+	<script src="/assets/js/core/bootstrap.min.js"></script>
+
+	<!-- Plugin for scroll behavior animation -->
+	<script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Main JS file -->
+	<script src="/assets/js/kaiadmin.min.js"></script>
+
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			// Auto-hide messages after 5 seconds
+			const errorMessage = document.querySelector('.error-message');
+			const successMessage = document.querySelector('.success-message');
+
+			if (errorMessage) {
+				setTimeout(function () {
+					errorMessage.style.display = 'none';
+				}, 5000);
+			}
+
+			if (successMessage) {
+				setTimeout(function () {
+					successMessage.style.display = 'none';
+				}, 5000);
+			}
+
+			// No Login Required toggle
+			const noLoginCheckbox = document.getElementById('noLoginRequired');
+			const passwordSection = document.getElementById('passwordSection');
+			const confirmPasswordSection = document.getElementById('confirmPasswordSection');
+			const passwordInput = document.getElementById('password');
+			const confirmPasswordInput = document.getElementById('confirmPassword');
+			const strengthBar = document.getElementById('strengthBar');
+
+			function togglePasswordFields() {
+				const isNoLogin = noLoginCheckbox.checked;
+				passwordSection.style.display = isNoLogin ? 'none' : '';
+				confirmPasswordSection.style.display = isNoLogin ? 'none' : '';
+				if (isNoLogin) {
+					passwordInput.removeAttribute('required');
+					confirmPasswordInput.removeAttribute('required');
+					passwordInput.value = '';
+					confirmPasswordInput.value = '';
+				} else {
+					passwordInput.setAttribute('required', 'required');
+					confirmPasswordInput.setAttribute('required', 'required');
+				}
+			}
+
+			noLoginCheckbox.addEventListener('change', togglePasswordFields);
+			// Run on page load in case the checkbox is pre-checked (e.g. validation error round-trip)
+			togglePasswordFields();
+
+			// Password strength indicator
+			function checkPasswordStrength(password) {
+				let strength = 0;
+				if (password.length >= 8) strength++;
+				if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+				if (/\d/.test(password)) strength++;
+				if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+				strengthBar.classList.remove('weak', 'medium', 'strong');
+				if (strength < 2) {
+					strengthBar.classList.add('weak');
+				} else if (strength < 4) {
+					strengthBar.classList.add('medium');
+				} else {
+					strengthBar.classList.add('strong');
+				}
+			}
+
+			passwordInput.addEventListener('input', function () {
+				checkPasswordStrength(this.value);
+			});
+
+			// Form validation
+			const form = document.getElementById('registerForm');
+			form.addEventListener('submit', function (e) {
+				if (noLoginCheckbox.checked) return; // skip password checks for no-login users
+
+				const password = document.getElementById('password').value;
+				const confirmPassword = document.getElementById('confirmPassword').value;
+
+				if (password !== confirmPassword) {
+					e.preventDefault();
+					alert('Passwords do not match!');
+					return false;
+				}
+
+				if (password.length < 8) {
+					e.preventDefault();
+					alert('Password must be at least 8 characters long!');
+					return false;
+				}
+			});
+
+			// Focus on first input
+			document.getElementById('fullName').focus();
+
+			// Profile picture preview
+			document.getElementById('profilePicture').addEventListener('change', function () {
+				if (this.files && this.files[0]) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						document.getElementById('profilePreview').src = e.target.result;
+					};
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>

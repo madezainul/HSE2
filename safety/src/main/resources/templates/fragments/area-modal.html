@@ -1,0 +1,63 @@
+<th:block xmlns:th="http://www.thymeleaf.org">
+    <!-- Add / Edit Area Modal Fragment -->
+    <div class="modal fade" id="areaModal" th:fragment="areaModal" tabindex="-1"
+        aria-labelledby="areaModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="areaModalLabel">Add New Area</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="areaForm" autocomplete="off">
+                        <input type="hidden" id="areaId">
+
+                        <div class="mb-3">
+                            <label for="areaCode" class="form-label">
+                                Code <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="areaCode"
+                                placeholder="e.g. AREA-01" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="areaName" class="form-label">
+                                Name <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" class="form-control" id="areaName"
+                                placeholder="Area name" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="areaDescription" class="form-label">Description</label>
+                            <textarea class="form-control" id="areaDescription" rows="3"
+                                placeholder="Optional description"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="areaStatus" class="form-label">
+                                Status <span class="text-danger">*</span>
+                            </label>
+                            <select class="form-select" id="areaStatus" required>
+                                <option value="ACTIVE">Active</option>
+                                <option value="INACTIVE">Inactive</option>
+                                <option value="UNDER_MAINTENANCE">Under Maintenance</option>
+                            </select>
+                        </div>
+
+                        <div id="areaFormError" class="alert alert-danger d-none" role="alert"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="saveAreaBtn">
+                        <span id="saveAreaSpinner"
+                            class="spinner-border spinner-border-sm me-1 d-none"
+                            role="status" aria-hidden="true"></span>
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</th:block>

@@ -1,0 +1,213 @@
+﻿<th:block xmlns:th="http://www.thymeleaf.org">
+    <!-- Add Incident Modal Fragment -->
+    <div class="modal fade" id="addIncidentModal" th:fragment="addIncidentModal" tabindex="-1"
+        aria-labelledby="addIncidentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addIncidentModalLabel">Report New Incident</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form th:action="@{/incident}" id="addIncidentForm" method="post" enctype="multipart/form-data">
+                    <!-- Hidden field for incident code (used in UPDATE mode) -->
+                    <input type="hidden" id="incidentCodeHidden" value="">
+                    <div class="modal-body">
+
+                        <!-- Row 1: Date & Area -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="incidentDate" class="form-label">Incident Date & Time <span
+                                            class="text-danger">*</span></label>
+                                    <input type="datetime-local" class="form-control" id="incidentDate" name="reportDate" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="areaInput" class="form-label">Area <span
+                                            class="text-danger">*</span></label>
+                                    <div style="position: relative;">
+                                        <input type="text" class="form-control" id="areaInput"
+                                            placeholder="Search area by name or code" autocomplete="off" />
+                                        <div id="areaDropdown" class="dropdown-menu"
+                                            style="position: absolute; left: 0; right: 0; width: 100%; top: calc(100% + 0.125rem); display: none; max-height: 200px; overflow-y: auto; min-width: unset; padding: 0.5rem 0; border-radius: var(--bs-border-radius); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="areaCode" id="areaHidden" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 2: Severity & Type -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="severity" class="form-label">Severity Level <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="severity" name="severity" required>
+                                        <option value="" disabled selected>Select severity level</option>
+                                        <th:block th:each="severity : ${T(ahqpck.hse.safety.model.entity.Incident.SeverityLevel).values()}">
+                                            <option th:value="${severity}" th:text="${severity}"
+                                                th:selected="${param.severity == severity}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="type" class="form-label">Incident Type <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-select" id="type" name="type" required>
+                                        <option value="" disabled selected>Select incident type</option>
+                                        <th:block th:each="type : ${T(ahqpck.hse.safety.model.entity.Incident.Type).values()}">
+                                            <option th:value="${type}" th:text="${type}"
+                                                th:selected="${param.type == type}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="description" class="form-label">Description <span
+                                        class="text-danger">*</span></label>
+                                <textarea class="form-control" id="description" name="description" rows="3"
+                                    placeholder="Provide detailed description of the incident..." required></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Row 3: Involved Person Name & Position -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="involvedPersonName" class="form-label">Involved Person Name</label>
+                                    <div style="position: relative;">
+                                        <input type="text" class="form-control" id="involvedPersonName"
+                                            name="involvedPersonName"
+                                            placeholder="Search employee by name or ID" autocomplete="off" />
+                                        <div id="involvedPersonDropdown" class="dropdown-menu"
+                                            style="position: absolute; left: 0; right: 0; width: 100%; top: calc(100% + 0.125rem); display: none; max-height: 200px; overflow-y: auto; min-width: unset; padding: 0.5rem 0; border-radius: var(--bs-border-radius); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="involvedPersonEmployeeId" id="involvedPersonHidden" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="involvedPersonPosition" class="form-label">Position</label>
+                                    <input type="text" class="form-control" id="involvedPersonPosition"
+                                        name="involvedPersonPosition" placeholder="e.g., Production Operator">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Row 4: Witnesses & Status -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="witnesses" class="form-label">Witness</label>
+                                    <div style="position: relative;">
+                                        <input type="text" class="form-control" id="witnesses"
+                                            name="witnesses"
+                                            placeholder="Search witness by name or ID" autocomplete="off" />
+                                        <div id="witnessesDropdown" class="dropdown-menu"
+                                            style="position: absolute; left: 0; right: 0; width: 100%; top: calc(100% + 0.125rem); display: none; max-height: 200px; overflow-y: auto; min-width: unset; padding: 0.5rem 0; border-radius: var(--bs-border-radius); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);">
+                                        </div>
+                                    </div>
+                                    <input type="hidden" name="witnessesEmployeeId" id="witnessesHidden" />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="status" class="form-label">Status</label>
+                                    <select class="form-select" id="status" name="status">
+                                        <option value="" disabled selected>Select status</option>
+                                        <th:block th:each="status : ${T(ahqpck.hse.safety.model.entity.Incident.IncidentStatus).values()}">
+                                            <option th:value="${status}" th:text="${status}"
+                                                th:selected="${param.status == status}"></option>
+                                        </th:block>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Immediate Action -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="immediateAction" class="form-label">Immediate Action</label>
+                                <textarea class="form-control" id="immediateAction" name="immediateAction" rows="2"
+                                    placeholder="What was done immediately to address the incident..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Corrective Action -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="correctiveAction" class="form-label">Corrective Action</label>
+                                <textarea class="form-control" id="correctiveAction" name="correctiveAction" rows="2"
+                                    placeholder="What was done to prevent recurrence..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Medical Attention -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="medicalAttentionRequired" name="medicalAttentionRequired">
+                                    <label class="form-check-label" for="medicalAttentionRequired">
+                                        Medical Attention Required
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- File Upload Section -->
+                        <hr>
+                        <h6 class="mb-3 text-muted">Attachments <small class="text-muted fw-normal">(optional, can be
+                                added after saving)</small></h6>
+
+                        <!-- Incident Images -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="incidentImages" class="form-label">
+                                    <i class="fa fa-image me-1"></i> Incident Images
+                                </label>
+                                <input type="file" class="form-control" id="incidentImages" name="incidentImages"
+                                    accept=".jpg,.jpeg,.png,.webp" multiple>
+                                <div class="form-text">Accepted: JPG, PNG, WEBP. Max 10MB per file.</div>
+                            </div>
+                        </div>
+
+                        <!-- Incident Documents -->
+                        <div class="mb-3">
+                            <div class="form-group">
+                                <label for="incidentDocuments" class="form-label">
+                                    <i class="fa fa-paperclip me-1"></i> Attachments / Documents
+                                </label>
+                                <input type="file" class="form-control" id="incidentDocuments" name="incidentDocuments"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx" multiple>
+                                <div class="form-text">Accepted: PDF, DOC, DOCX, XLS, XLSX. Max 10MB per file.</div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="submitIncidentBtn">
+                            <i class="fa fa-save me-2"></i> Report Incident
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script for Incident Index Module (Live Search) -->
+    <script th:src="@{/assets/js/custom/incident-index.js}"></script>
+    <!-- Script for Incident Modal Live Search -->
+    <script th:src="@{/assets/js/custom/incident-modal.js}"></script>
+    <!-- Script for Incident Form Submission + File Upload -->
+    <script th:src="@{/assets/js/custom/incident-form.js}"></script>
+</th:block>

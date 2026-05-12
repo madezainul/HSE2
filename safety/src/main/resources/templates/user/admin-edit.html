@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Edit User</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () { sessionStorage.fonts = true; }
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+	<link rel="stylesheet" href="/assets/css/demo.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<h3 class="fw-bold mb-3">Edit User</h3>
+					<p class="text-muted">Update user account information</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<a href="/user" class="btn btn-secondary btn-round">
+						<i class="fa fa-arrow-left me-2"></i> Back to User List
+					</a>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">
+								<i class="fa fa-user-edit me-2"></i>
+								Edit User: <strong th:text="${targetUser.username}"></strong>
+								<small class="text-muted ms-2" th:text="'(' + ${targetUser.employeeId} + ')'"></small>
+							</div>
+						</div>
+						<div class="card-body">
+
+							<form th:action="@{/user/{id}/edit(id=${targetUser.id})}" th:object="${updateProfileRequest}"
+								method="post" enctype="multipart/form-data">
+
+								<!-- Validation errors summary -->
+								<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" role="alert">
+									<i class="fa fa-exclamation-circle me-2"></i>
+									Please correct the errors below.
+								</div>
+
+								<!-- Profile Picture -->
+								<div class="row mb-4">
+									<div class="col-12">
+										<label class="form-label d-block">Profile Picture</label>
+										<div class="d-flex align-items-center gap-3">
+											<img id="profilePreview"
+												th:src="${targetUser.profilePicture != null ? '/file/' + targetUser.profilePicture : '/assets/img/no_image.png'}"
+												alt="Profile Picture"
+												style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #dee2e6;cursor:pointer;"
+												onclick="document.getElementById('profilePicture').click()">
+											<div>
+												<input type="file" id="profilePicture" name="profilePicture" accept="image/*" class="form-control" style="display:none">
+												<button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('profilePicture').click()">
+													<i class="fa fa-upload me-1"></i> Change Picture
+												</button>
+												<div class="text-muted mt-1" style="font-size:12px;">JPG, PNG, WEBP. Leave empty to keep current.</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Full Name -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="fullName">Full Name <span class="text-danger">*</span></label>
+										<input type="text" id="fullName" th:field="*{fullName}"
+											class="form-control" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'"
+											placeholder="Enter full name">
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}"
+											th:errors="*{fullName}"></div>
+									</div>
+
+									<!-- Employee ID -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="employeeId">Employee ID <span class="text-danger">*</span></label>
+										<input type="text" id="employeeId" th:field="*{employeeId}"
+											class="form-control" th:classappend="${#fields.hasErrors('employeeId')} ? 'is-invalid'"
+											placeholder="Enter employee ID">
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('employeeId')}"
+											th:errors="*{employeeId}"></div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Email -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="email">Email</label>
+										<input type="email" id="email" th:field="*{email}"
+											class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+											placeholder="Enter email address">
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+											th:errors="*{email}"></div>
+									</div>
+
+									<!-- Department -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="department">Department <span class="text-danger">*</span></label>
+										<input type="text" id="department" th:field="*{department}"
+											class="form-control" th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'"
+											placeholder="Enter department">
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('department')}"
+											th:errors="*{department}"></div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Role -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="role">Role <span class="text-danger">*</span></label>
+										<select id="role" th:field="*{role}" class="form-select"
+											th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+											<option value="">-- Select Role --</option>
+											<option value="ADMIN">Admin</option>
+											<option value="MANAGER">Manager</option>
+											<option value="USER">User</option>
+											<option value="VIEWER">Viewer</option>
+										</select>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('role')}"
+											th:errors="*{role}"></div>
+									</div>
+
+									<!-- Account Status -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label d-block">Account Status</label>
+										<div class="form-check form-switch mt-2">
+											<input class="form-check-input" type="checkbox" id="enabled"
+												name="enabled" value="true"
+												th:checked="${targetUser.enabled}">
+											<label class="form-check-label" for="enabled">
+												<span th:text="${targetUser.enabled ? 'Active' : 'Inactive'}"></span>
+											</label>
+										</div>
+									</div>
+								</div>
+
+								<!-- Read-only info -->
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Username</label>
+										<input type="text" class="form-control" th:value="${targetUser.username}" readonly disabled>
+										<small class="text-muted">Username cannot be changed.</small>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label">Created At</label>
+										<input type="text" class="form-control"
+											th:value="${targetUser.createdAt != null ? #temporals.format(targetUser.createdAt, 'yyyy-MM-dd HH:mm') : 'N/A'}"
+											readonly disabled>
+									</div>
+								</div>
+
+								<!-- Buttons -->
+								<div class="d-flex justify-content-end gap-2 mt-3">
+									<a href="/user" class="btn btn-secondary">
+										<i class="fa fa-times me-1"></i> Cancel
+									</a>
+									<button type="submit" class="btn btn-primary">
+										<i class="fa fa-save me-1"></i> Save Changes
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script>
+			// Update status label dynamically
+			document.getElementById('enabled').addEventListener('change', function () {
+				this.nextElementSibling.textContent = this.checked ? 'Active' : 'Inactive';
+			});
+
+			// Profile picture preview
+			document.getElementById('profilePicture').addEventListener('change', function () {
+				if (this.files && this.files[0]) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						document.getElementById('profilePreview').src = e.target.result;
+					};
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+# Properties files (environment-specific config)
+*.properties
+
+# Uploaded files
+uploads/
+
+# Maven build output
+safety/target/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

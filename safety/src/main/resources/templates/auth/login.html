@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Login - Safety Management System</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<link rel="stylesheet" href="/assets/css/fontawesome-custom.css">
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+	<link rel="stylesheet" href="/assets/css/demo.css">
+
+	<style>
+		.login-container {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			min-height: 100vh;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			padding: 20px;
+		}
+
+		.login-card {
+			background: white;
+			border-radius: 10px;
+			box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+			width: 100%;
+			max-width: 400px;
+			padding: 40px;
+		}
+
+		.login-header {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.login-header i {
+			font-size: 80px;
+			margin-bottom: 15px;
+			display: block;
+			text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		.login-header img {
+			height: 40px;
+			margin-bottom: 15px;
+		}
+
+		.login-header h1 {
+			font-size: 24px;
+			font-weight: 600;
+			color: #333;
+			margin-bottom: 5px;
+		}
+
+		.login-header p {
+			color: #999;
+			font-size: 14px;
+		}
+
+		.form-group {
+			margin-bottom: 20px;
+		}
+
+		.form-group label {
+			display: block;
+			margin-bottom: 8px;
+			color: #333;
+			font-weight: 500;
+			font-size: 14px;
+		}
+
+		.form-group input {
+			width: 100%;
+			padding: 12px 15px;
+			border: 1px solid #ddd;
+			border-radius: 6px;
+			font-size: 14px;
+			transition: border-color 0.3s;
+		}
+
+		.form-group input:focus {
+			outline: none;
+			border-color: #667eea;
+			box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+		}
+
+		.form-group input::placeholder {
+			color: #bbb;
+		}
+
+		.remember-forgot {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 20px;
+			font-size: 14px;
+		}
+
+		.remember-forgot input[type="checkbox"] {
+			margin-right: 6px;
+			cursor: pointer;
+		}
+
+		.remember-forgot a {
+			color: #667eea;
+			text-decoration: none;
+		}
+
+		.remember-forgot a:hover {
+			text-decoration: underline;
+		}
+
+		.btn-login {
+			width: 100%;
+			padding: 12px;
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+			border: none;
+			border-radius: 6px;
+			font-weight: 600;
+			font-size: 16px;
+			cursor: pointer;
+			transition: transform 0.2s, box-shadow 0.2s;
+			margin-bottom: 20px;
+		}
+
+		.btn-login:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+		}
+
+		.btn-login:active {
+			transform: translateY(0);
+		}
+
+		.login-footer {
+			text-align: center;
+			padding-top: 20px;
+			border-top: 1px solid #eee;
+		}
+
+		.login-footer p {
+			color: #666;
+			font-size: 14px;
+		}
+
+		.login-footer a {
+			color: #667eea;
+			text-decoration: none;
+			font-weight: 600;
+		}
+
+		.login-footer a:hover {
+			text-decoration: underline;
+		}
+
+		.error-message {
+			background-color: #f8d7da;
+			color: #721c24;
+			padding: 12px 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			font-size: 14px;
+			border: 1px solid #f5c6cb;
+		}
+
+		.success-message {
+			background-color: #d4edda;
+			color: #155724;
+			padding: 12px 15px;
+			border-radius: 6px;
+			margin-bottom: 20px;
+			font-size: 14px;
+			border: 1px solid #c3e6cb;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="login-container">
+		<div class="login-card">
+			<div class="login-header">
+				<i class="fas fa-hard-hat" style="color: #09d331;"></i>
+				<h1>Safety Management</h1>
+				<p>Sign in to your account</p>
+			</div>
+
+			<!-- Error Message -->
+			<div th:if="${error} or ${param.error}">
+				<div class="error-message">
+					<i class="fas fa-exclamation-circle"></i>
+					<span th:text="${errorMessage} ?: 'Invalid username or password'">Invalid username or password</span>
+				</div>
+			</div>
+
+			<!-- Logout Message -->
+			<div th:if="${param.logout}">
+				<div class="success-message">
+					<i class="fas fa-check-circle"></i> You have been logged out successfully
+				</div>
+			</div>
+
+			<form th:action="@{/auth/login}" method="post" autocomplete="off" th:object="${loginRequest}">
+				<!-- Username/EmployeeId -->
+				<div class="form-group">
+					<label for="username">Username or EmployeeId</label>
+					<input type="text" id="username" name="username" placeholder="Enter your username or employee ID"
+						required th:field="*{username}">
+				</div>
+
+				<!-- Password -->
+				<div class="form-group">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password" placeholder="Enter your password" required th:field="*{password}">
+				</div>
+
+				<!-- Remember & Forgot -->
+				<div class="remember-forgot">
+					<label>
+						<input type="checkbox" name="remember-me" th:field="*{rememberMe}"> Remember me
+					</label>
+					<a href="/auth/forgot-password">Forgot password?</a>
+				</div>
+
+				<!-- Login Button -->
+				<button type="submit" class="btn-login">
+					<i class="fas fa-sign-in-alt"></i> Sign In
+				</button>
+			</form>
+
+			<!-- Footer -->
+			<div class="login-footer">
+				<p>Don't have an account? <a href="/auth/register">Create one here</a></p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Core JS Files -->
+	<script src="/assets/js/core/jquery-3.7.1.min.js"></script>
+	<script src="/assets/js/core/popper.min.js"></script>
+	<script src="/assets/js/core/bootstrap.min.js"></script>
+
+	<!-- Plugin for scroll behavior animation -->
+	<script src="/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+
+	<!-- Main JS file -->
+	<script src="/assets/js/kaiadmin.min.js"></script>
+
+	<script>
+		// Auto-hide messages after 5 seconds
+		document.addEventListener('DOMContentLoaded', function () {
+			const errorMessage = document.querySelector('.error-message');
+			const successMessage = document.querySelector('.success-message');
+
+			if (errorMessage) {
+				setTimeout(function () {
+					errorMessage.style.display = 'none';
+				}, 5000);
+			}
+
+			if (successMessage) {
+				setTimeout(function () {
+					successMessage.style.display = 'none';
+				}, 5000);
+			}
+
+			// Focus on first input
+			document.getElementById('username').focus();
+		});
+	</script>
+</body>
+
+</html>
