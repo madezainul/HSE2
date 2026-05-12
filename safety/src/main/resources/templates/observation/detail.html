@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
 	layout:decorate="~{layouts/dashboard}">
 
 <head>
@@ -54,7 +54,7 @@
 						th:data-observation-code="${observation.code}">
 						<i class="fa fa-edit me-2"></i> Edit
 					</button>
-				<button type="button" class="btn btn-danger btn-round" id="deleteObservationBtn"
+				<button type="button" class="btn btn-danger btn-round" id="deleteObservationBtn" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')"
 					th:data-observation-code="${observation.code}" onclick="deleteObservation(event)">
 					<i class="fa fa-trash me-2"></i> Delete
 				</button>
