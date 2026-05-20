@@ -1,5 +1,6 @@
 # Properties files (environment-specific config)
 *.properties
+CLAUDE.md
 
 # Uploaded files
 uploads/
