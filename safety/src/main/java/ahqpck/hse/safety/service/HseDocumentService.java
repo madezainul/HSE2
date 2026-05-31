@@ -86,6 +86,7 @@ public class HseDocumentService {
             case RISK_ASSESSMENT -> "RA";
             case WORK_INSTRUCTION -> "WI";
             case WORK_PERMIT -> "WP";
+            case HSE_FORM -> "HF";
         };
         return String.format("%s%06d", prefix, count);
     }
@@ -95,6 +96,7 @@ public class HseDocumentService {
             case RISK_ASSESSMENT -> FileCategory.RISK_ASSESSMENT_DOCUMENT;
             case WORK_INSTRUCTION -> FileCategory.WORK_INSTRUCTION_DOCUMENT;
             case WORK_PERMIT -> FileCategory.WORK_PERMIT_DOCUMENT;
+            case HSE_FORM -> FileCategory.HSE_FORM_DOCUMENT;
         };
     }
 

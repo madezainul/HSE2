@@ -11,7 +11,8 @@ public enum FileCategory {
     TOOLBOX_MEETING_DOCUMENT  ("toolbox-meeting/documents",  FileType.DOCUMENT),
     WORK_INSTRUCTION_DOCUMENT ("work-instruction/documents", FileType.DOCUMENT),
     RISK_ASSESSMENT_DOCUMENT  ("risk-assessment/documents",  FileType.DOCUMENT),
-    WORK_PERMIT_DOCUMENT      ("work-permit/documents",      FileType.DOCUMENT);
+    WORK_PERMIT_DOCUMENT      ("work-permit/documents",      FileType.DOCUMENT),
+    HSE_FORM_DOCUMENT         ("hse-form/documents",         FileType.DOCUMENT);
 
     private final String path;
     private final FileType fileType;

@@ -38,7 +38,7 @@
 			<!-- Header Section -->
 			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
 				<div>
-					<a href="/toolbox" class="btn btn-secondary btn-sm mb-3">
+					<a href="/procedure/toolbox" class="btn btn-secondary btn-sm mb-3">
 						<i class="fa fa-arrow-left me-2"></i> Back to List
 					</a>
 					<h2 class="fw-bold mb-2 text-dark" th:text="'Toolbox Meeting: ' + ${meeting.code}">Toolbox Meeting Details</h2>
@@ -140,7 +140,7 @@
 								<div class="col-md-6">
 									<div class="form-group">
 										<label class="form-label fw-bold">Supervisor Name</label>
-										<p class="text-muted" th:text="${meeting.supervisor ?: 'N/A'}"></p>
+										<p class="text-muted" th:text="${supervisorDisplayName ?: 'N/A'}"></p>
 									</div>
 								</div>
 								<div class="col-md-6">
@@ -207,7 +207,7 @@
 					</div>
 
 					<!-- Supervisor Info Card -->
-					<div class="card mb-4 shadow-sm border-0" th:if="${meeting.supervisor != null}">
+					<div class="card mb-4 shadow-sm border-0" th:if="${supervisorDisplayName != null or meeting.supervisorEmployeeId != null}">
 						<div class="card-header bg-gradient bg-primary text-white border-0">
 							<div class="card-title text-white mb-0">Supervisor</div>
 						</div>
@@ -217,7 +217,7 @@
 									<img src="/assets/img/profile2.jpg" alt="Supervisor" class="avatar-img rounded-circle">
 								</div>
 								<div class="ms-3">
-									<p class="fw-bold mb-1" th:text="${meeting.supervisor}"></p>
+									<p class="fw-bold mb-1" th:text="${supervisorDisplayName ?: meeting.supervisorEmployeeId ?: 'N/A'}"></p>
 									<small class="text-muted" th:text="${meeting.supervisorEmployeeId ?: ''}"></small>
 								</div>
 							</div>

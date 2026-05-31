@@ -17,15 +17,22 @@ import org.springframework.http.HttpStatus;
 
 import ahqpck.hse.safety.model.entity.ToolboxMeeting;
 import ahqpck.hse.safety.repository.ToolboxMeetingRepository;
+import ahqpck.hse.safety.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Controller
-@RequestMapping("/toolbox")
+@RequestMapping("/procedure/toolbox")
 @Slf4j
 public class ToolboxController {
 
     @Autowired
     private ToolboxMeetingRepository toolboxRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @GetMapping
     public String toolboxPage(
@@ -36,7 +43,19 @@ public class ToolboxController {
         Pageable pageable = PageRequest.of(page, size, Sort.by("meetingDate").descending());
         Page<ToolboxMeeting> toolboxPage = toolboxRepository.findAll(pageable);
 
+        Map<String, String> supervisorNameMap = new HashMap<>();
+        for (ToolboxMeeting m : toolboxPage.getContent()) {
+            if ((m.getSupervisor() == null || m.getSupervisor().isBlank())
+                    && m.getSupervisorEmployeeId() != null
+                    && !supervisorNameMap.containsKey(m.getSupervisorEmployeeId())) {
+                userRepository.findByEmployeeId(m.getSupervisorEmployeeId())
+                        .ifPresent(u -> supervisorNameMap.put(m.getSupervisorEmployeeId(), u.getFullName()));
+            }
+        }
+
+        model.addAttribute("title", "Toolbox Meeting");
         model.addAttribute("toolboxPage", toolboxPage);
+        model.addAttribute("supervisorNameMap", supervisorNameMap);
         model.addAttribute("pageSize", size);
         model.addAttribute("sortBy", "meetingDate");
         model.addAttribute("asc", false);
@@ -48,7 +67,18 @@ public class ToolboxController {
     public String toolboxDetailPage(@PathVariable String code, Model model) {
         ToolboxMeeting meeting = toolboxRepository.findByCode(code)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Toolbox meeting not found: " + code));
+
+        String supervisorDisplayName = meeting.getSupervisor();
+        if ((supervisorDisplayName == null || supervisorDisplayName.isBlank())
+                && meeting.getSupervisorEmployeeId() != null) {
+            supervisorDisplayName = userRepository.findByEmployeeId(meeting.getSupervisorEmployeeId())
+                    .map(u -> u.getFullName())
+                    .orElse(null);
+        }
+
+        model.addAttribute("title", "Toolbox Meeting");
         model.addAttribute("meeting", meeting);
+        model.addAttribute("supervisorDisplayName", supervisorDisplayName);
         return "toolbox/detail";
     }
 }

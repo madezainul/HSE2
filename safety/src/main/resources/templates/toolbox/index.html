@@ -268,7 +268,8 @@
 											<td th:text="${meeting.meetingDate != null ? #temporals.format(meeting.meetingDate, 'yyyy-MM-dd') : ''}"></td>
 											<td th:text="${meeting.timeStarted != null ? #temporals.format(meeting.timeStarted, 'HH:mm') : ''}"></td>
 											<td th:text="${meeting.timeEnd != null ? #temporals.format(meeting.timeEnd, 'HH:mm') : '-'}"></td>
-											<td th:text="${meeting.supervisor ?: '-'}"></td>
+											<td th:with="supName=${meeting.supervisor ?: supervisorNameMap[meeting.supervisorEmployeeId]}"
+												th:text="${supName ?: '-'}"></td>
 											<td>
 												<span class="badge" th:classappend="${
 													meeting.status?.name() == 'COMPLETED' ? 'bg-success' :
@@ -298,7 +299,7 @@
 						<ul class="pagination justify-content-center mb-0">
 							<li class="page-item" th:classappend="${!toolboxPage.hasPrevious} ? 'disabled'">
 								<a class="page-link"
-									th:href="@{/toolbox(page=${toolboxPage.number - 1}, size=${pageSize})}"
+									th:href="@{/procedure/toolbox(page=${toolboxPage.number - 1}, size=${pageSize})}"
 									th:if="${toolboxPage.hasPrevious}">Previous</a>
 								<span class="page-link" th:if="${!toolboxPage.hasPrevious}">Previous</span>
 							</li>
@@ -311,7 +312,7 @@
 							</li>
 							<li class="page-item" th:classappend="${!toolboxPage.hasNext} ? 'disabled'">
 								<a class="page-link"
-									th:href="@{/toolbox(page=${toolboxPage.number + 1}, size=${pageSize})}"
+									th:href="@{/procedure/toolbox(page=${toolboxPage.number + 1}, size=${pageSize})}"
 									th:if="${toolboxPage.hasNext}">Next</a>
 								<span class="page-link" th:if="${!toolboxPage.hasNext}">Next</span>
 							</li>
@@ -331,7 +332,7 @@
 					row.addEventListener('click', function (e) {
 						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
 						const code = this.getAttribute('data-toolbox-code');
-						if (code) window.location.href = '/toolbox/' + code;
+						if (code) window.location.href = '/procedure/toolbox/' + code;
 					});
 				});
 			});

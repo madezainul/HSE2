@@ -46,7 +46,7 @@ function deleteToolboxMeeting(event) {
     .then(data => {
         if (data.status === 'success') {
             alert('Toolbox meeting deleted successfully');
-            window.location = '/toolbox';
+            window.location = '/procedure/toolbox';
         } else {
             alert('Error: ' + (data.message || 'Failed to delete toolbox meeting'));
         }

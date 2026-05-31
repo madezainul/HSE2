@@ -78,7 +78,7 @@ const ToolboxModalModule = {
             a.textContent = displayFields.map(function (f) { return item[f] || ''; }).join(' – ');
             a.addEventListener('mousedown', function (e) {
                 e.preventDefault();
-                input.value = displayFields.map(function (f) { return item[f] || ''; }).join(' – ');
+                input.value = item[displayFields[0]] || '';
                 if (hiddenInput) hiddenInput.value = item[idField] || '';
                 dropdown.style.display = 'none';
             });

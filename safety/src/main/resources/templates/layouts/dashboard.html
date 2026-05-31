@@ -179,13 +179,13 @@
 								<p>Observation Report</p>
 							</a>
 						</li>
-						<li class="nav-item" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? 'active' : ''">
-							<a data-bs-toggle="collapse" href="#documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'}">
+						<li class="nav-item" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit' or title == 'HSE Form'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit' or title == 'HSE Form'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit' or title == 'HSE Form'}">
 								<i class="fas fa-file-alt"></i>
 								<p>Documents</p>
 								<span class="caret"></span>
 							</a>
-							<div class="collapse" id="documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit'} ? 'show' : ''">
+							<div class="collapse" id="documents" th:classappend="${title == 'Risk Assessment' or title == 'Work Instruction' or title == 'Work Permit' or title == 'HSE Form'} ? 'show' : ''">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="/documents/risk-assessment" th:classappend="${title == 'Risk Assessment'} ? 'active' : ''">
@@ -205,6 +205,94 @@
 											<span class="sub-item">Work Permit</span>
 										</a>
 									</li>
+									<li>
+										<a href="/documents/hse-form" th:classappend="${title == 'HSE Form'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Form'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Form</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#procedure" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'}">
+								<i class="fas fa-book-open"></i>
+								<p>HSE Procedure</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="procedure" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'show' : ''">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="/procedure/toolbox" th:classappend="${title == 'Toolbox Meeting'} ? 'active' : ''">
+											<i th:if="${title == 'Toolbox Meeting'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Toolbox Meeting</span>
+										</a>
+									</li>
+									<li>
+										<a href="/procedure/training" th:classappend="${title == 'HSE Training'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Training'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Training</span>
+										</a>
+									</li>
+									<li>
+										<a href="/procedure/hse-index" th:classappend="${title == 'HSE Index Record'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Index Record'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Index Record</span>
+										</a>
+									</li>
+									<li>
+										<a href="/procedure/external-training" th:classappend="${title == 'HSE External Training Record'} ? 'active' : ''">
+											<i th:if="${title == 'HSE External Training Record'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE External Training Record</span>
+										</a>
+									</li>
+									<li>
+										<a href="/procedure/certification" th:classappend="${title == 'Certification'} ? 'active' : ''">
+											<i th:if="${title == 'Certification'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Certification</span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</li>
+						<li class="nav-item" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'}">
+								<i class="fas fa-clipboard-check"></i>
+								<p>Inspection</p>
+								<span class="caret"></span>
+							</a>
+							<div class="collapse" id="inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? 'show' : ''">
+								<ul class="nav nav-collapse">
+									<li>
+										<a href="/inspection/fire-safety" th:classappend="${title == 'Fire Safety Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'Fire Safety Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Fire Safety</span>
+										</a>
+									</li>
+									<li>
+										<a href="/inspection/environment" th:classappend="${title == 'Environment Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'Environment Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Environment</span>
+										</a>
+									</li>
+									<li>
+										<a href="/inspection/first-aid" th:classappend="${title == 'First Aid Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'First Aid Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">First Aid</span>
+										</a>
+									</li>
+									<li>
+										<a href="/inspection/spill-kit" th:classappend="${title == 'Spill Kit Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'Spill Kit Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Spill Kit</span>
+										</a>
+									</li>
+									<li>
+										<a href="/inspection/other" th:classappend="${title == 'Other Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'Other Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Other</span>
+										</a>
+									</li>
 								</ul>
 							</div>
 						</li>
@@ -212,12 +300,6 @@
 							<a href="/areas">
 								<i class="fas fa-map-marker-alt"></i>
 								<p>Location</p>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a href="/toolbox">
-								<i class="fas fa-users"></i>
-								<p>Toolbox Meeting</p>
 							</a>
 						</li>
 						<li class="nav-item">

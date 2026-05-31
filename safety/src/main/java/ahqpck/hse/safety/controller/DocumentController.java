@@ -46,4 +46,14 @@ public class DocumentController {
         model.addAttribute("documents", documentService.findByModule(HseDocument.Module.WORK_PERMIT));
         return "documents/work-permit";
     }
+
+    @GetMapping("/hse-form")
+    public String hseForm(Model model) {
+        log.info("Viewing HSE Form page");
+        model.addAttribute("title", "HSE Form");
+        model.addAttribute("pageTitle", "HSE Form Documents");
+        model.addAttribute("moduleUrl", "hse-form");
+        model.addAttribute("documents", documentService.findByModule(HseDocument.Module.HSE_FORM));
+        return "documents/hse-form";
+    }
 }

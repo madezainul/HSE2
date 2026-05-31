@@ -82,7 +82,7 @@ public class HseDocument {
     // ── Module enum ───────────────────────────────────────────────────────
 
     public enum Module {
-        RISK_ASSESSMENT, WORK_INSTRUCTION, WORK_PERMIT;
+        RISK_ASSESSMENT, WORK_INSTRUCTION, WORK_PERMIT, HSE_FORM;
 
         public String toUrlPath() {
             return name().toLowerCase().replace("_", "-");

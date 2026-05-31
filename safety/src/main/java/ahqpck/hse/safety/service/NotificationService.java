@@ -49,7 +49,7 @@ public class NotificationService {
                 break;
             case "TOOLBOX_MEETING":
                 label = "Toolbox Meeting";
-                linkUrl = "/toolbox/" + referenceCode;
+                linkUrl = "/procedure/toolbox/" + referenceCode;
                 break;
             default:
                 label = "Observation";
