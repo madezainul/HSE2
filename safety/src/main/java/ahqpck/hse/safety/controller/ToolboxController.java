@@ -24,7 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Controller
-@RequestMapping("/procedure/toolbox")
+@RequestMapping("/training/toolbox")
 @Slf4j
 public class ToolboxController {
 

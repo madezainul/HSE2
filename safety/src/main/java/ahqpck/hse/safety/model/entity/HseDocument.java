@@ -51,6 +51,11 @@ public class HseDocument {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 20)
+    private DocumentStatus status = DocumentStatus.ACTIVE;
+
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
 
@@ -78,6 +83,10 @@ public class HseDocument {
             default -> "fa fa-file me-2 text-muted";
         };
     }
+
+    // ── Status enum ───────────────────────────────────────────────────────
+
+    public enum DocumentStatus { ACTIVE, UPDATED, OBSOLETE }
 
     // ── Module enum ───────────────────────────────────────────────────────
 

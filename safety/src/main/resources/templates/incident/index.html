@@ -340,16 +340,47 @@
 				const clickableRows = document.querySelectorAll('.clickable-row');
 				clickableRows.forEach(row => {
 					row.addEventListener('click', function(e) {
-						// Don't navigate if clicking on a button or link
-						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
-							return;
-						}
+						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
 						const incidentCode = this.getAttribute('data-incident-code');
-						if (incidentCode) {
-							window.location.href = '/incident/' + incidentCode;
-							console.log('Navigating to: /incident/' + incidentCode);
-						}
+						if (incidentCode) window.location.href = '/incident/' + incidentCode;
 					});
+				});
+
+				// Page size
+				const pageSizeSelect = document.getElementById('pageSizeSelect');
+				if (pageSizeSelect) {
+					pageSizeSelect.addEventListener('change', function () {
+						const url = new URL(window.location.href);
+						url.searchParams.set('size', this.value);
+						url.searchParams.set('page', '0');
+						window.location.href = url.toString();
+					});
+				}
+
+				// Apply filters
+				document.getElementById('applyFilters')?.addEventListener('click', function () {
+					const params = new URLSearchParams();
+					params.set('page', '0');
+					const size = pageSizeSelect?.value;
+					if (size) params.set('size', size);
+					const keyword = document.querySelector('[name="keyword"]')?.value?.trim();
+					if (keyword) params.set('keyword', keyword);
+					const dateFrom = document.querySelector('[name="reportDateFrom"]')?.value;
+					if (dateFrom) params.set('reportDateFrom', dateFrom);
+					const dateTo = document.querySelector('[name="reportDateTo"]')?.value;
+					if (dateTo) params.set('reportDateTo', dateTo);
+					const assigneeEmpId = document.getElementById('filterAssigneeHidden')?.value;
+					if (assigneeEmpId) params.set('assigneeEmpId', assigneeEmpId);
+					const group = document.querySelector('[name="group"]')?.value;
+					if (group) params.set('group', group);
+					const state = document.getElementById('statusHiddenInput')?.value;
+					if (state) params.set('state', state);
+					window.location.href = '/incident?' + params.toString();
+				});
+
+				// Reset filters
+				document.getElementById('resetFilters')?.addEventListener('click', function () {
+					window.location.href = '/incident';
 				});
 			});
 		</script>

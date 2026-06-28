@@ -69,6 +69,14 @@ public class HseDocumentService {
     }
 
     @Transactional
+    public HseDocument updateStatus(String code, HseDocument.DocumentStatus status) {
+        HseDocument doc = documentRepository.findByCode(code)
+                .orElseThrow(() -> new RuntimeException("Document not found: " + code));
+        doc.setStatus(status);
+        return documentRepository.save(doc);
+    }
+
+    @Transactional
     public void delete(String code) throws IOException {
         HseDocument doc = documentRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Document not found: " + code));

@@ -80,10 +80,11 @@
 											<td th:text="${doc.uploadedBy != null ? doc.uploadedBy.fullName : '-'}">
 											</td>
 											<td th:text="${doc.formattedFileSize}"></td>
-											<td>
-												<span th:if="${doc.isActive}" class="badge bg-success">Active</span>
-												<span th:unless="${doc.isActive}"
-													class="badge bg-secondary">Inactive</span>
+											<td th:switch="${doc.status?.name() ?: 'ACTIVE'}">
+												<span th:case="'ACTIVE'" class="badge bg-success">Active</span>
+												<span th:case="'UPDATED'" class="badge bg-warning text-dark">Updated</span>
+												<span th:case="'OBSOLETE'" class="badge bg-secondary">Obsolete</span>
+												<span th:case="*" class="badge bg-success">Active</span>
 											</td>
 											<td>
 												<button type="button" class="btn btn-sm btn-primary me-1 btn-view-doc" title="View"
@@ -95,6 +96,22 @@
 													th:data-filepath="${doc.filePath}">
 													<i class="fa fa-download"></i>
 												</button>
+												<div class="btn-group me-1">
+													<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="Change Status">
+														<i class="fa fa-tag"></i>
+													</button>
+													<ul class="dropdown-menu dropdown-menu-end">
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="ACTIVE">
+															<i class="fa fa-check-circle text-success me-2"></i>Mark as Active</a></li>
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="UPDATED">
+															<i class="fa fa-sync text-warning me-2"></i>Mark as Updated</a></li>
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="OBSOLETE">
+															<i class="fa fa-ban text-secondary me-2"></i>Mark as Obsolete</a></li>
+													</ul>
+												</div>
 												<button type="button" class="btn btn-sm btn-danger btn-delete-doc" title="Delete"
 													th:data-code="${doc.code}"
 													th:data-docname="${doc.docName}">

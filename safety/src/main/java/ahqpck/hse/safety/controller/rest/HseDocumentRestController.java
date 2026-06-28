@@ -45,6 +45,29 @@ public class HseDocumentRestController {
         }
     }
 
+    @PatchMapping("/{code}/status")
+    public ResponseEntity<Map<String, Object>> updateStatus(
+            @PathVariable String code,
+            @RequestParam String status) {
+        Map<String, Object> response = new HashMap<>();
+        try {
+            HseDocument.DocumentStatus docStatus = HseDocument.DocumentStatus.valueOf(status.toUpperCase());
+            documentService.updateStatus(code, docStatus);
+            response.put("status", "success");
+            response.put("message", "Status updated to " + docStatus.name().toLowerCase());
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            response.put("status", "error");
+            response.put("message", "Invalid status value: " + status);
+            return ResponseEntity.badRequest().body(response);
+        } catch (Exception e) {
+            log.error("Error updating status for document {}: {}", code, e.getMessage());
+            response.put("status", "error");
+            response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
+    }
+
     @DeleteMapping("/{code}")
     public ResponseEntity<Map<String, Object>> delete(@PathVariable String code) {
         Map<String, Object> response = new HashMap<>();

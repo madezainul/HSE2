@@ -93,6 +93,28 @@ function openDocument(filePath, ext) {
     }
 }
 
+// ── Status Change ─────────────────────────────────────────────────────────────
+
+async function changeDocStatus(code, status) {
+    const labels = { ACTIVE: 'Active', UPDATED: 'Updated', OBSOLETE: 'Obsolete' };
+    const label = labels[status] || status;
+    if (!confirm(`Mark this document as "${label}"?`)) return;
+
+    try {
+        const resp = await fetch(`/api/documents/${code}/status?status=${status}`, { method: 'PATCH' });
+        const data = await resp.json();
+
+        if (data.status === 'success') {
+            showDocToast('success', data.message || 'Status updated');
+            setTimeout(() => location.reload(), 900);
+        } else {
+            showDocToast('error', data.message || 'Status update failed');
+        }
+    } catch (err) {
+        showDocToast('error', 'Network error: ' + err.message);
+    }
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function showDocToast(type, message) {
@@ -145,6 +167,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const delBtn = e.target.closest('.btn-delete-doc');
         if (delBtn) {
             deleteDocument(delBtn.dataset.code, delBtn.dataset.docname);
+            return;
+        }
+        const statusBtn = e.target.closest('.btn-change-status');
+        if (statusBtn) {
+            e.preventDefault();
+            changeDocStatus(statusBtn.dataset.code, statusBtn.dataset.status);
         }
     });
 });

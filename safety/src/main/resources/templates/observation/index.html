@@ -366,16 +366,51 @@
 				const clickableRows = document.querySelectorAll('.clickable-row');
 				clickableRows.forEach(row => {
 					row.addEventListener('click', function (e) {
-						// Don't navigate if clicking on a button or link
-						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') {
-							return;
-						}
+						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
 						const observationCode = this.getAttribute('data-observation-code');
-						if (observationCode) {
-							window.location.href = '/observation/' + observationCode;
-
-						}
+						if (observationCode) window.location.href = '/observation/' + observationCode;
 					});
+				});
+
+				// Page size
+				const pageSizeSelect = document.getElementById('pageSizeSelect');
+				if (pageSizeSelect) {
+					pageSizeSelect.addEventListener('change', function () {
+						const url = new URL(window.location.href);
+						url.searchParams.set('size', this.value);
+						url.searchParams.set('page', '0');
+						window.location.href = url.toString();
+					});
+				}
+
+				// Apply filters
+				document.getElementById('applyFilters')?.addEventListener('click', function () {
+					const params = new URLSearchParams();
+					params.set('page', '0');
+					const size = pageSizeSelect?.value;
+					if (size) params.set('size', size);
+					const keyword = document.querySelector('[name="keyword"]')?.value?.trim();
+					if (keyword) params.set('keyword', keyword);
+					const dateFrom = document.querySelector('[name="observationDateFrom"]')?.value;
+					if (dateFrom) params.set('observationDateFrom', dateFrom);
+					const dateTo = document.querySelector('[name="observationDateTo"]')?.value;
+					if (dateTo) params.set('observationDateTo', dateTo);
+					const observerEmpId = document.getElementById('filterObserverHidden')?.value;
+					if (observerEmpId) params.set('observerEmpId', observerEmpId);
+					const responsibleEmpId = document.getElementById('filterResponsibleHidden')?.value;
+					if (responsibleEmpId) params.set('responsibleEmpId', responsibleEmpId);
+					const category = document.querySelector('[name="category"]')?.value;
+					if (category) params.set('category', category);
+					const type = document.querySelector('[name="type"]')?.value;
+					if (type) params.set('type', type);
+					const status = document.getElementById('statusHiddenInput')?.value;
+					if (status) params.set('status', status);
+					window.location.href = '/observation?' + params.toString();
+				});
+
+				// Reset filters
+				document.getElementById('resetFilters')?.addEventListener('click', function () {
+					window.location.href = '/observation';
 				});
 			});
 		</script>
