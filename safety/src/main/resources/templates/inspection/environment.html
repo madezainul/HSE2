@@ -26,40 +26,99 @@
 			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
 				<div>
 					<h3 class="fw-bold mb-3">Environment Inspection</h3>
-					<p class="text-muted">Manage Environment Inspection records</p>
+					<p class="text-muted">Manage and upload environment inspection documents</p>
 				</div>
 				<div class="ms-md-auto py-2 py-md-0">
-					<button type="button" class="btn btn-primary btn-round">
-						<i class="fa fa-plus me-2"></i> Add Record
+					<button type="button" class="btn btn-primary btn-round" data-bs-toggle="modal"
+						data-bs-target="#uploadDocModal">
+						<i class="fa fa-upload me-2"></i> Upload Document
 					</button>
 				</div>
+			</div>
+
+			<div id="docToastContainer" class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:9999;">
 			</div>
 
 			<div class="row">
 				<div class="col-md-12">
 					<div class="card">
 						<div class="card-header">
-							<div class="card-title">Environment Inspection Records</div>
+							<div class="card-title">Environment Inspection Documents</div>
 						</div>
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-hover table-head-bg-success">
 									<thead>
 										<tr>
-											<th>#</th>
-											<th>Inspection Date</th>
-											<th>Location</th>
-											<th>Inspector</th>
+											<th>Document Name</th>
+											<th>Type</th>
+											<th>Description</th>
+											<th>Uploaded Date</th>
+											<th>Uploaded By</th>
+											<th>File Size</th>
 											<th>Status</th>
-											<th>Findings</th>
 											<th>Actions</th>
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<td colspan="7" class="text-center text-muted py-4">
+										<tr th:if="${#lists.isEmpty(documents)}">
+											<td colspan="8" class="text-center text-muted py-4">
 												<i class="fas fa-leaf fa-2x mb-2 d-block"></i>
-												No environment inspection records found.
+												No environment inspection documents uploaded yet.
+											</td>
+										</tr>
+										<tr th:each="doc : ${documents}">
+											<td>
+												<strong>
+													<i th:class="${doc.fileIconClass}"></i>
+													<span th:text="${doc.docName}"></span>
+												</strong>
+												<br><small class="text-muted" th:text="${doc.originalFileName}"></small>
+											</td>
+											<td><span class="badge bg-info" th:text="${doc.category ?: '-'}"></span>
+											</td>
+											<td th:text="${doc.description ?: '-'}"></td>
+											<td th:text="${#temporals.format(doc.uploadedAt, 'dd MMM yyyy')}"></td>
+											<td th:text="${doc.uploadedBy != null ? doc.uploadedBy.fullName : '-'}">
+											</td>
+											<td th:text="${doc.formattedFileSize}"></td>
+											<td th:switch="${doc.status?.name() ?: 'ACTIVE'}">
+												<span th:case="'ACTIVE'" class="badge bg-success">Active</span>
+												<span th:case="'UPDATED'" class="badge bg-warning text-dark">Updated</span>
+												<span th:case="'OBSOLETE'" class="badge bg-secondary">Obsolete</span>
+												<span th:case="*" class="badge bg-success">Active</span>
+											</td>
+											<td>
+												<button type="button" class="btn btn-sm btn-primary me-1 btn-view-doc" title="View"
+													th:data-filepath="${doc.filePath}"
+													th:data-ext="${doc.fileExtension}">
+													<i class="fa fa-eye"></i>
+												</button>
+												<button type="button" class="btn btn-sm btn-info me-1 btn-download-doc" title="Download"
+													th:data-filepath="${doc.filePath}">
+													<i class="fa fa-download"></i>
+												</button>
+												<div class="btn-group me-1">
+													<button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown" title="Change Status">
+														<i class="fa fa-tag"></i>
+													</button>
+													<ul class="dropdown-menu dropdown-menu-end">
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="ACTIVE">
+															<i class="fa fa-check-circle text-success me-2"></i>Mark as Active</a></li>
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="UPDATED">
+															<i class="fa fa-sync text-warning me-2"></i>Mark as Updated</a></li>
+														<li><a class="dropdown-item btn-change-status" href="#"
+															th:data-code="${doc.code}" data-status="OBSOLETE">
+															<i class="fa fa-ban text-secondary me-2"></i>Mark as Obsolete</a></li>
+													</ul>
+												</div>
+												<button type="button" class="btn btn-sm btn-danger btn-delete-doc" title="Delete"
+													th:data-code="${doc.code}"
+													th:data-docname="${doc.docName}">
+													<i class="fa fa-trash"></i>
+												</button>
 											</td>
 										</tr>
 									</tbody>
@@ -70,6 +129,92 @@
 				</div>
 			</div>
 		</div>
+
+		<!-- Upload Modal -->
+		<div class="modal fade" id="uploadDocModal" tabindex="-1" aria-labelledby="uploadDocModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-lg">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="uploadDocModalLabel">Upload Environment Inspection Document</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<form id="uploadDocForm" enctype="multipart/form-data">
+						<div class="modal-body">
+							<div class="mb-3">
+								<label for="docName" class="form-label">Document Name <span
+										class="text-danger">*</span></label>
+								<input type="text" class="form-control" id="docName" name="docName"
+									placeholder="e.g., Environment Inspection Q4 2024" required>
+							</div>
+							<div class="mb-3">
+								<label for="category" class="form-label">Document Type <span
+										class="text-danger">*</span></label>
+								<select class="form-select" id="category" name="category" required>
+									<option selected disabled value="">Select document type</option>
+									<option value="Assessment">Assessment</option>
+									<option value="Report">Report</option>
+									<option value="Checklist">Checklist</option>
+									<option value="Guidelines">Guidelines</option>
+								</select>
+							</div>
+							<div class="mb-3">
+								<label for="description" class="form-label">Description</label>
+								<textarea class="form-control" id="description" name="description" rows="3"
+									placeholder="Provide a brief description..."></textarea>
+							</div>
+							<div class="mb-3">
+								<label for="docFile" class="form-label">Select File <span
+										class="text-danger">*</span></label>
+								<input type="file" class="form-control" id="docFile" name="docFile"
+									accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx" required>
+								<small class="text-muted">Accepted formats: PDF, Word, Excel, PowerPoint (Max 5
+									MB)</small>
+							</div>
+							<div class="form-check mb-3">
+								<input class="form-check-input" type="checkbox" id="isActive" name="isActive"
+									value="true" checked>
+								<label class="form-check-label" for="isActive">Make this document active</label>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+							<button type="submit" class="btn btn-primary"><i class="fa fa-upload me-2"></i> Upload
+								Document</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+		<!-- PDF Viewer Modal -->
+		<div class="modal fade" id="pdfViewerModal" tabindex="-1" aria-labelledby="pdfViewerModalLabel"
+			aria-hidden="true">
+			<div class="modal-dialog modal-xl modal-dialog-centered">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="pdfViewerModalLabel"><i class="fa fa-file-pdf me-2 text-danger"></i>
+							Document Viewer</h5>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+					</div>
+					<div class="modal-body p-0">
+						<iframe id="pdfViewerFrame" style="width:100%;height:80vh;border:none;"
+							title="Document Viewer"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
 	</div>
+
+	<th:block layout:fragment="scripts">
+		<script src="/assets/js/custom/hse-document.js"></script>
+		<script th:inline="javascript">
+			const MODULE_URL = /*[[${moduleUrl}]]*/ 'environment-inspection';
+			document.addEventListener('DOMContentLoaded', function () {
+				initDocumentUpload(MODULE_URL);
+			});
+		</script>
+	</th:block>
 </body>
+
 </html>

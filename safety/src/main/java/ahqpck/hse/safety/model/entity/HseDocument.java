@@ -91,7 +91,8 @@ public class HseDocument {
     // ── Module enum ───────────────────────────────────────────────────────
 
     public enum Module {
-        RISK_ASSESSMENT, WORK_INSTRUCTION, WORK_PERMIT, HSE_FORM;
+        RISK_ASSESSMENT, WORK_INSTRUCTION, WORK_PERMIT, HSE_FORM,
+        FIRE_SAFETY_INSPECTION, ENVIRONMENT_INSPECTION, FIRST_AID_INSPECTION, SPILL_KIT_INSPECTION, OTHER_INSPECTION;
 
         public String toUrlPath() {
             return name().toLowerCase().replace("_", "-");

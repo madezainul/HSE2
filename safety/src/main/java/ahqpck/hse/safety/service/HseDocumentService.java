@@ -95,6 +95,11 @@ public class HseDocumentService {
             case WORK_INSTRUCTION -> "WI";
             case WORK_PERMIT -> "WP";
             case HSE_FORM -> "HF";
+            case FIRE_SAFETY_INSPECTION -> "FSI";
+            case ENVIRONMENT_INSPECTION -> "ENI";
+            case FIRST_AID_INSPECTION -> "FAI";
+            case SPILL_KIT_INSPECTION -> "SKI";
+            case OTHER_INSPECTION -> "OTI";
         };
         return String.format("%s%06d", prefix, count);
     }
@@ -105,6 +110,11 @@ public class HseDocumentService {
             case WORK_INSTRUCTION -> FileCategory.WORK_INSTRUCTION_DOCUMENT;
             case WORK_PERMIT -> FileCategory.WORK_PERMIT_DOCUMENT;
             case HSE_FORM -> FileCategory.HSE_FORM_DOCUMENT;
+            case FIRE_SAFETY_INSPECTION -> FileCategory.FIRE_SAFETY_INSPECTION_DOCUMENT;
+            case ENVIRONMENT_INSPECTION -> FileCategory.ENVIRONMENT_INSPECTION_DOCUMENT;
+            case FIRST_AID_INSPECTION -> FileCategory.FIRST_AID_INSPECTION_DOCUMENT;
+            case SPILL_KIT_INSPECTION -> FileCategory.SPILL_KIT_INSPECTION_DOCUMENT;
+            case OTHER_INSPECTION -> FileCategory.OTHER_INSPECTION_DOCUMENT;
         };
     }
 
