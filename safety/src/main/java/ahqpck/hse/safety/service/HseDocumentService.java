@@ -89,8 +89,29 @@ public class HseDocumentService {
     // ── Private helpers ───────────────────────────────────────────────────
 
     private String generateCode(HseDocument.Module module) {
-        long count = documentRepository.countByModule(module) + 1;
-        String prefix = switch (module) {
+        String prefix = prefixFor(module);
+        long next = documentRepository.findTopByCodeStartingWithOrderByCodeDesc(prefix)
+                .map(doc -> {
+                    try {
+                        return Long.parseLong(doc.getCode().substring(prefix.length())) + 1;
+                    } catch (NumberFormatException e) {
+                        return 1L;
+                    }
+                })
+                .orElse(1L);
+
+        String code;
+        int attempts = 0;
+        do {
+            code = String.format("%s%06d", prefix, next + attempts);
+            attempts++;
+        } while (documentRepository.existsByCode(code) && attempts < 10);
+
+        return code;
+    }
+
+    private String prefixFor(HseDocument.Module module) {
+        return switch (module) {
             case RISK_ASSESSMENT -> "RA";
             case WORK_INSTRUCTION -> "WI";
             case WORK_PERMIT -> "WP";
@@ -101,7 +122,6 @@ public class HseDocumentService {
             case SPILL_KIT_INSPECTION -> "SKI";
             case OTHER_INSPECTION -> "OTI";
         };
-        return String.format("%s%06d", prefix, count);
     }
 
     private FileCategory toFileCategory(HseDocument.Module module) {

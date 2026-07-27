@@ -15,4 +15,8 @@ public interface HseDocumentRepository extends JpaRepository<HseDocument, Long> 
     Optional<HseDocument> findByCode(String code);
 
     long countByModule(HseDocument.Module module);
+
+    boolean existsByCode(String code);
+
+    Optional<HseDocument> findTopByCodeStartingWithOrderByCodeDesc(String prefix);
 }
