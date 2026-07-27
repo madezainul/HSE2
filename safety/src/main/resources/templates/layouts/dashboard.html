@@ -220,13 +220,13 @@
 								</ul>
 							</div>
 						</li>
-						<li class="nav-item" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'active' : ''">
-							<a data-bs-toggle="collapse" href="#training" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'}">
+						<li class="nav-item" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'}">
 								<i class="fas fa-book-open"></i>
 								<p>HSE Training</p>
 								<span class="caret"></span>
 							</a>
-							<div class="collapse" id="training" th:classappend="${title == 'HSE Training' or title == 'HSE Index Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'show' : ''">
+							<div class="collapse" id="training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'show' : ''">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="/training/toolbox" th:classappend="${title == 'Toolbox Meeting'} ? 'active' : ''">
@@ -235,9 +235,9 @@
 										</a>
 									</li>
 									<li>
-										<a href="/training/hse-index" th:classappend="${title == 'HSE Index Record'} ? 'active' : ''">
-											<i th:if="${title == 'HSE Index Record'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">HSE Index Record</span>
+										<a href="/training/hse-induction" th:classappend="${title == 'HSE Induction Record'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Induction Record'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Induction Record</span>
 										</a>
 									</li>
 									<li>
