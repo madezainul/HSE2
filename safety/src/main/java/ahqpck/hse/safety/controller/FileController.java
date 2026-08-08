@@ -29,15 +29,15 @@ public class FileController {
      * Serve files inline (for viewing in browser).
      * URL format: /file/incident/images/uuid_filename.jpg
      * Maps to: uploads/incident/images/uuid_filename.jpg
+     * Uses a catch-all path variable since category paths vary in depth
+     * (e.g. "risk-assessment/documents" vs "inspection/fire-safety/documents").
      */
-    @GetMapping("/{category}/{type}/{fileName}")
-    public ResponseEntity<Resource> serveFile(
-            @PathVariable String category,
-            @PathVariable String type,
-            @PathVariable String fileName) {
+    @GetMapping("/{*path}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String path) {
+        String relativePath = path.startsWith("/") ? path.substring(1) : path;
+        String fileName = extractFileName(relativePath);
 
         try {
-            String relativePath = category + "/" + type + "/" + fileName;
             log.info("Serving file inline: {}", relativePath);
 
             Resource resource = fileStorageService.loadFile(relativePath);
@@ -58,14 +58,12 @@ public class FileController {
      * Download files as attachments (forces browser download).
      * URL format: /file/download/risk-assessment/documents/uuid_filename.pdf
      */
-    @GetMapping("/download/{category}/{type}/{fileName}")
-    public ResponseEntity<Resource> downloadFile(
-            @PathVariable String category,
-            @PathVariable String type,
-            @PathVariable String fileName) {
+    @GetMapping("/download/{*path}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String path) {
+        String relativePath = path.startsWith("/") ? path.substring(1) : path;
+        String fileName = extractFileName(relativePath);
 
         try {
-            String relativePath = category + "/" + type + "/" + fileName;
             log.info("Downloading file as attachment: {}", relativePath);
 
             Resource resource = fileStorageService.loadFile(relativePath);
@@ -85,5 +83,10 @@ public class FileController {
             log.error("Error downloading file", e);
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private String extractFileName(String relativePath) {
+        int lastSlash = relativePath.lastIndexOf('/');
+        return lastSlash >= 0 ? relativePath.substring(lastSlash + 1) : relativePath;
     }
 }
