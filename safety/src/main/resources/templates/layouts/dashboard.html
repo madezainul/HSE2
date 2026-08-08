@@ -241,6 +241,12 @@
 										</a>
 									</li>
 									<li>
+										<a href="/training/internal-training" th:classappend="${title == 'HSE Internal Training Record'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Internal Training Record'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Internal Training Record</span>
+										</a>
+									</li>
+									<li>
 										<a href="/training/external-training" th:classappend="${title == 'HSE External Training Record'} ? 'active' : ''">
 											<i th:if="${title == 'HSE External Training Record'}" class="fas fa-angle-right me-2"></i>
 											<span class="sub-item">HSE External Training Record</span>

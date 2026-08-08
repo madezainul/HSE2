@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UACompatible" content="IE=edge" />
+	<title>HSE Induction Record Form</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () { sessionStorage.fonts = true; }
+		});
+	</script>
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<a href="/training/hse-induction" class="btn btn-secondary btn-sm mb-3">
+						<i class="fa fa-arrow-left me-2"></i> Back to List
+					</a>
+					<h3 class="fw-bold mb-3">Add HSE Induction Record</h3>
+					<p class="text-muted">Fill in the details below to create a new HSE Induction Record</p>
+				</div>
+			</div>
+
+			<div class="row">
+				<div class="col-md-8">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">Induction Details</div>
+						</div>
+						<div class="card-body">
+							<form id="inductionForm" method="post" enctype="multipart/form-data">
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="inductionName" class="form-label">Induction Name <span class="text-danger">*</span></label>
+											<input type="text" class="form-control" id="inductionName" name="inductionName"
+												placeholder="e.g., General Induction, Safety Induction" required>
+										</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="category" class="form-label">Category <span class="text-danger">*</span></label>
+											<select class="form-control" id="category" name="category" required>
+												<option value="">-- Select Category --</option>
+												<option value="GENERAL">General</option>
+												<option value="SAFETY">Safety</option>
+												<option value="EQUIPMENT">Equipment</option>
+												<option value="EMERGENCY">Emergency</option>
+												<option value="OTHER">Other</option>
+											</select>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="inductionDate" class="form-label">Induction Date <span class="text-danger">*</span></label>
+											<input type="date" class="form-control" id="inductionDate" name="inductionDate" required>
+										</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="value" class="form-label">Value</label>
+											<input type="text" class="form-control" id="value" name="value"
+												placeholder="e.g., Score, Status, or Reference">
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-12 mb-3">
+										<div class="form-group">
+											<label for="description" class="form-label">Description</label>
+											<textarea class="form-control" id="description" name="description"
+												rows="4" placeholder="Enter description or additional details..."></textarea>
+										</div>
+									</div>
+								</div>
+
+								<!-- File Upload Section -->
+								<hr>
+								<div class="row">
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="inductionImages" class="form-label">
+												<i class="fa fa-image me-1"></i> Induction Images
+											</label>
+											<small class="text-muted d-block mb-2">Allowed: JPG, PNG, WEBP (Max 5MB per file)</small>
+											<input type="file" class="form-control" id="inductionImages" name="inductionImages"
+												multiple accept=".jpg,.jpeg,.png,.webp" />
+											<div id="imagePreview" class="mt-2 d-flex flex-wrap gap-2"></div>
+										</div>
+									</div>
+									<div class="col-md-6 mb-3">
+										<div class="form-group">
+											<label for="inductionDocuments" class="form-label">
+												<i class="fa fa-file-pdf me-1"></i> Induction Documents
+											</label>
+											<small class="text-muted d-block mb-2">Allowed: PDF, DOC, DOCX, XLS, XLSX (Max 5MB per file)</small>
+											<input type="file" class="form-control" id="inductionDocuments" name="inductionDocuments"
+												multiple accept=".pdf,.doc,.docx,.xls,.xlsx" />
+											<div id="documentPreview" class="mt-2 d-flex flex-wrap gap-2"></div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<div class="col-md-12">
+										<div class="form-group">
+											<button type="submit" class="btn btn-primary me-2">
+												<i class="fa fa-save me-2"></i> Save Record
+											</button>
+											<a href="/training/hse-induction" class="btn btn-secondary">
+												<i class="fa fa-times me-2"></i> Cancel
+											</a>
+										</div>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				const form = document.getElementById('inductionForm');
+
+				// File preview functionality
+				const imagesInput = document.getElementById('inductionImages');
+				const documentsInput = document.getElementById('inductionDocuments');
+				const imagePreview = document.getElementById('imagePreview');
+				const documentPreview = document.getElementById('documentPreview');
+
+				function createFileTag(name) {
+					const tag = document.createElement('div');
+					tag.className = 'badge bg-info p-2';
+					tag.textContent = name;
+					return tag;
+				}
+
+				imagesInput.addEventListener('change', function () {
+					imagePreview.innerHTML = '';
+					Array.from(this.files).forEach(file => {
+						imagePreview.appendChild(createFileTag(file.name));
+					});
+				});
+
+				documentsInput.addEventListener('change', function () {
+					documentPreview.innerHTML = '';
+					Array.from(this.files).forEach(file => {
+						documentPreview.appendChild(createFileTag(file.name));
+					});
+				});
+
+				// Form submission
+				form.addEventListener('submit', function (e) {
+					e.preventDefault();
+
+					// Basic validation
+					if (!form.inductionName.value.trim()) {
+						alert('Please enter Induction Name');
+						return;
+					}
+					if (!form.category.value) {
+						alert('Please select a Category');
+						return;
+					}
+					if (!form.inductionDate.value) {
+						alert('Please select an Induction Date');
+						return;
+					}
+
+					// Create FormData for multipart submission
+					const formData = new FormData();
+					formData.append('inductionName', form.inductionName.value);
+					formData.append('category', form.category.value);
+					formData.append('inductionDate', form.inductionDate.value);
+					formData.append('value', form.value.value);
+					formData.append('description', form.description.value);
+
+					// Add image files
+					const imageFiles = form.inductionImages.files;
+					for (let i = 0; i < imageFiles.length; i++) {
+						// Validate file size (5MB max)
+						if (imageFiles[i].size > 5 * 1024 * 1024) {
+							alert('Image file "' + imageFiles[i].name + '" exceeds 5MB limit');
+							return;
+						}
+						formData.append('inductionImages', imageFiles[i]);
+					}
+
+					// Add document files
+					const docFiles = form.inductionDocuments.files;
+					for (let i = 0; i < docFiles.length; i++) {
+						// Validate file size (5MB max)
+						if (docFiles[i].size > 5 * 1024 * 1024) {
+							alert('Document file "' + docFiles[i].name + '" exceeds 5MB limit');
+							return;
+						}
+						formData.append('inductionDocuments', docFiles[i]);
+					}
+
+					// Show loading indicator
+					const submitBtn = form.querySelector('button[type="submit"]');
+					const originalText = submitBtn.innerHTML;
+					submitBtn.disabled = true;
+					submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Saving...';
+
+					// Send to API
+					fetch('/api/hse-induction', {
+						method: 'POST',
+						headers: {
+							'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+						},
+						body: formData
+					})
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						} else {
+							return response.json().then(data => {
+								throw new Error(data.message || 'Error creating record');
+							});
+						}
+					})
+					.then(data => {
+						alert('HSE Induction Record created successfully!');
+						window.location.href = '/training/hse-induction';
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						alert('Error: ' + error.message);
+						submitBtn.disabled = false;
+						submitBtn.innerHTML = originalText;
+					});
+				});
+
+				// Set today's date as default
+				const today = new Date().toISOString().split('T')[0];
+				document.getElementById('inductionDate').value = today;
+			});
+		</script>
+	</th:block>
+
+</body>
+
+</html>
