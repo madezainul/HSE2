@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+</head>
+
+<body>
+	<!-- Add Certification Modal Fragment -->
+	<div class="modal fade" id="addCertificationModal" th:fragment="addCertificationModal" tabindex="-1"
+		aria-labelledby="addCertificationModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addCertificationModalLabel">Add Certification Record</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form id="addCertificationForm">
+					<div class="modal-body">
+
+						<!-- Row 1: Employee ID & Employee Name -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certEmployeeId" class="form-label">Employee ID <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="certEmployeeId" name="employeeId"
+										placeholder="e.g., EMP-001" required>
+									<small class="text-muted">Employee ID or reference number</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certEmployeeName" class="form-label">Employee Name</label>
+									<input type="text" class="form-control" id="certEmployeeName" name="employeeName"
+										placeholder="e.g., John Doe">
+									<small class="text-muted">Full name of employee</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 2: Certificate Name & Certificate Number -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certName" class="form-label">Certificate Name <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="certName" name="certificateName"
+										placeholder="e.g., First Aider, Forklift Operator" required>
+									<small class="text-muted">Name of the certificate</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certNumber" class="form-label">Certificate No.</label>
+									<input type="text" class="form-control" id="certNumber" name="certificateNumber"
+										placeholder="e.g., CERT/2026/0012">
+									<small class="text-muted">Number printed on the certificate</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 3: Issuing Body -->
+						<div class="row mb-3">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="certIssuingBody" class="form-label">Issuing Body</label>
+									<input type="text" class="form-control" id="certIssuingBody" name="issuingBody"
+										placeholder="e.g., Ministry of Manpower">
+									<small class="text-muted">Organization that issued the certificate</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 4: Issued Date & Expiry Date -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certIssuedDate" class="form-label">Issued Date <span class="text-danger">*</span></label>
+									<input type="date" class="form-control" id="certIssuedDate" name="issuedDate" required>
+									<small class="text-muted">Date the certificate was issued</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="certExpiryDate" class="form-label">Expiry Date</label>
+									<input type="date" class="form-control" id="certExpiryDate" name="expiryDate">
+									<small class="text-muted">Leave empty if it does not expire</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 5: Remarks -->
+						<div class="row mb-3">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="certRemarks" class="form-label">Remarks</label>
+									<input type="text" class="form-control" id="certRemarks" name="remarks"
+										placeholder="Additional notes">
+									<small class="text-muted">Any additional remarks</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- File Upload Section -->
+						<hr>
+						<h6 class="mb-3 text-muted">Attachments <small class="text-muted fw-normal">(optional)</small></h6>
+
+						<!-- File Upload Area -->
+						<div class="mb-3">
+							<div class="file-upload-area" id="certFileUploadArea"
+								style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background-color: #f8f9fa;">
+								<div class="file-upload-icon mb-2">
+									<i class="fa fa-file-upload fa-2x text-primary"></i>
+								</div>
+								<h6 class="mb-1">Drag and drop file here</h6>
+								<p class="text-muted small mb-2">or click to select</p>
+								<p class="text-muted small">
+									<strong>Allowed:</strong> Images (JPG, PNG, WEBP) and Documents (PDF, DOC, DOCX, XLS, XLSX)
+									<br>
+									<strong>Max size:</strong> 5MB
+								</p>
+
+								<!-- Hidden file input -->
+								<input type="file" id="certFileInput"
+									accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+									style="display: none;">
+							</div>
+						</div>
+
+						<!-- File Preview -->
+						<div id="certFilePreview" class="mb-3" style="display: none;">
+							<div class="card border-0 shadow-sm">
+								<div class="card-body p-3">
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="d-flex align-items-center flex-grow-1">
+											<i id="certFilePreviewIcon" style="font-size: 1.5rem; margin-right: 12px;"></i>
+											<div class="flex-grow-1">
+												<p class="mb-1 fw-bold text-truncate" id="certFilePreviewName"></p>
+												<small class="text-muted" id="certFilePreviewSize"></small>
+											</div>
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-danger" id="certClearFileBtn">
+											<i class="fa fa-trash"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Empty state message -->
+						<div id="certNoFileMessage" class="text-center text-muted py-3">
+							<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+							<small>No file selected</small>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="submitCertificationBtn">
+							<i class="fa fa-save me-2"></i> Save Record
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Script for Certification Modal File Upload and Form Submission -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const modal = document.getElementById('addCertificationModal');
+			const form = document.getElementById('addCertificationForm');
+			const fileUploadArea = document.getElementById('certFileUploadArea');
+			const fileInput = document.getElementById('certFileInput');
+			const filePreview = document.getElementById('certFilePreview');
+			const noFileMessage = document.getElementById('certNoFileMessage');
+			const clearFileBtn = document.getElementById('certClearFileBtn');
+			const submitBtn = document.getElementById('submitCertificationBtn');
+			const employeeIdInput = document.getElementById('certEmployeeId');
+			const employeeNameInput = document.getElementById('certEmployeeName');
+			const certNameInput = document.getElementById('certName');
+			const certNumberInput = document.getElementById('certNumber');
+			const issuingBodyInput = document.getElementById('certIssuingBody');
+			const issuedDateInput = document.getElementById('certIssuedDate');
+			const expiryDateInput = document.getElementById('certExpiryDate');
+			const remarksInput = document.getElementById('certRemarks');
+
+			const allowedImageTypes = ['jpg', 'jpeg', 'png', 'webp'];
+			const allowedDocTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+			const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+			let selectedFile = null;
+
+			// Set today's date as default for the issued date
+			const today = new Date().toISOString().split('T')[0];
+
+			// Reset form when modal is shown
+			if (modal) {
+				modal.addEventListener('show.bs.modal', function () {
+					form.reset();
+					issuedDateInput.value = today;
+					selectedFile = null;
+					fileInput.value = '';
+					updateFilePreview();
+				});
+			}
+
+			// Click to upload
+			fileUploadArea.addEventListener('click', function () {
+				fileInput.click();
+			});
+
+			// Drag and drop
+			fileUploadArea.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#0d6efd';
+				fileUploadArea.style.backgroundColor = '#e7f1ff';
+			});
+
+			fileUploadArea.addEventListener('dragleave', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+			});
+
+			fileUploadArea.addEventListener('drop', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+
+				const files = e.dataTransfer.files;
+				if (files.length > 0) {
+					handleFileSelect(files[0]);
+				}
+			});
+
+			// File input change
+			fileInput.addEventListener('change', function () {
+				if (this.files.length > 0) {
+					handleFileSelect(this.files[0]);
+				}
+			});
+
+			// Handle file selection
+			function handleFileSelect(file) {
+				if (file.size > maxFileSize) {
+					alert(`File "${file.name}" exceeds 5MB limit.`);
+					return;
+				}
+
+				const ext = getFileExtension(file.name);
+				if (!allowedImageTypes.includes(ext) && !allowedDocTypes.includes(ext)) {
+					alert(`File "${file.name}" has unsupported format.`);
+					return;
+				}
+
+				selectedFile = file;
+				updateFilePreview();
+			}
+
+			// Update file preview display
+			function updateFilePreview() {
+				if (!selectedFile) {
+					filePreview.style.display = 'none';
+					noFileMessage.style.display = 'block';
+					return;
+				}
+
+				const ext = getFileExtension(selectedFile.name);
+				const icon = getFileIcon(ext);
+				const color = getFileColor(ext);
+
+				document.getElementById('certFilePreviewIcon').innerHTML = `<i class="${icon}" style="color: ${color};"></i>`;
+				document.getElementById('certFilePreviewName').textContent = selectedFile.name;
+				document.getElementById('certFilePreviewSize').textContent = formatFileSize(selectedFile.size);
+
+				filePreview.style.display = 'block';
+				noFileMessage.style.display = 'none';
+			}
+
+			// Clear selected file
+			clearFileBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				selectedFile = null;
+				fileInput.value = '';
+				updateFilePreview();
+			});
+
+			// Form submission
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+
+				// Validate required fields
+				if (!employeeIdInput.value.trim()) {
+					alert('Please enter Employee ID');
+					return;
+				}
+				if (!certNameInput.value.trim()) {
+					alert('Please enter Certificate Name');
+					return;
+				}
+				if (!issuedDateInput.value) {
+					alert('Please select an Issued Date');
+					return;
+				}
+				if (expiryDateInput.value && expiryDateInput.value < issuedDateInput.value) {
+					alert('Expiry Date cannot be before Issued Date');
+					return;
+				}
+
+				// Create FormData
+				const formData = new FormData();
+				formData.append('employeeId', employeeIdInput.value.trim());
+				formData.append('employeeName', employeeNameInput.value.trim());
+				formData.append('certificateName', certNameInput.value.trim());
+				formData.append('certificateNumber', certNumberInput.value.trim());
+				formData.append('issuingBody', issuingBodyInput.value.trim());
+				formData.append('issuedDate', issuedDateInput.value);
+				if (expiryDateInput.value) {
+					formData.append('expiryDate', expiryDateInput.value);
+				}
+				formData.append('remarks', remarksInput.value.trim());
+
+				if (selectedFile) {
+					formData.append('certificationFile', selectedFile);
+				}
+
+				// Show loading state
+				submitBtn.disabled = true;
+				const originalText = submitBtn.innerHTML;
+				submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Saving...';
+
+				// Send to API
+				fetch('/api/hse-certification', {
+					method: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+					},
+					body: formData
+				})
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					return response.json().then(data => {
+						throw new Error(data.message || 'Error creating record');
+					});
+				})
+				.then(() => {
+					alert('Certification Record created successfully!');
+					const bootstrapModal = bootstrap.Modal.getInstance(modal);
+					if (bootstrapModal) bootstrapModal.hide();
+					window.location.reload();
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Error: ' + error.message);
+					submitBtn.disabled = false;
+					submitBtn.innerHTML = originalText;
+				});
+			});
+
+			// Helper functions
+			function getFileExtension(filename) {
+				if (!filename.includes('.')) return '';
+				return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+			}
+
+			function getFileIcon(ext) {
+				if (allowedImageTypes.includes(ext)) {
+					return 'fa fa-file-image';
+				}
+				return {
+					'pdf': 'fa fa-file-pdf',
+					'doc': 'fa fa-file-word',
+					'docx': 'fa fa-file-word',
+					'xls': 'fa fa-file-excel',
+					'xlsx': 'fa fa-file-excel'
+				}[ext] || 'fa fa-file';
+			}
+
+			function getFileColor(ext) {
+				const colorMap = {
+					'jpg': '#0dcaf0', 'jpeg': '#0dcaf0', 'png': '#0dcaf0', 'webp': '#0dcaf0',
+					'pdf': '#dc3545',
+					'doc': '#0d6efd', 'docx': '#0d6efd',
+					'xls': '#198754', 'xlsx': '#198754'
+				};
+				return colorMap[ext] || '#6c757d';
+			}
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+			}
+		});
+	</script>
+
+</body>
+
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>HSE Induction Records</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () {
+				sessionStorage.fonts = true;
+			}
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<h3 class="fw-bold mb-3">HSE Induction</h3>
+					<p class="text-muted">Manage HSE Induction Training Records</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<button type="button" class="btn btn-primary btn-round" data-bs-toggle="modal" data-bs-target="#addInductionModal">
+						<i class="fa fa-plus me-2"></i> Add Record
+					</button>
+				</div>
+			</div>
+
+			<!-- Recent Records Table -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card shadow-sm border-0">
+						<div class="card-header bg-gradient bg-info text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-clock me-2"></i> Recent Records
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-hover table-sm">
+									<thead>
+										<tr>
+											<th>Code</th>
+											<th>Trainee ID</th>
+											<th>Trainee Name</th>
+											<th>Date</th>
+											<th>Trainer ID</th>
+											<th style="width: 80px;">Actions</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="record : ${recentRecords}">
+											<td>
+												<strong th:text="${record.code}"></strong>
+											</td>
+											<td th:text="${record.traineeId}"></td>
+											<td th:text="${record.traineeName ?: '-'}"></td>
+											<td th:text="${record.inductionDate != null ? #temporals.format(record.inductionDate, 'yyyy-MM-dd') : '-'}"></td>
+											<td th:text="${record.trainerId ?: '-'}"></td>
+											<td>
+												<a th:href="@{/training/hse-induction/{code}(code=${record.code})}" class="btn btn-sm btn-info" title="View">
+													<i class="fa fa-eye"></i>
+												</a>
+											</td>
+										</tr>
+										<tr th:if="${#lists.isEmpty(recentRecords)}">
+											<td colspan="6" class="text-center text-muted py-4">
+												<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+												No induction records yet
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="text-center mt-3" th:if="${!#lists.isEmpty(recentRecords)}">
+								<a href="/training/hse-induction" class="btn btn-secondary btn-sm">
+									<i class="fa fa-arrow-right me-2"></i> View All Records
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- Induction Modal Fragment -->
+		<div th:replace="~{fragments/induction-modal :: addInductionModal}"></div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script>
+			document.addEventListener('DOMContentLoaded', function () {
+				console.log('HSE Induction page loaded');
+			});
+		</script>
+	</th:block>
+
+</body>
+
+</html>

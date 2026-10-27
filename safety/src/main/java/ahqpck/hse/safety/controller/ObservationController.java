@@ -1,6 +1,10 @@
 package ahqpck.hse.safety.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,15 +20,20 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.security.core.Authentication;
 
+import ahqpck.hse.safety.model.dto.ObservationSearchCriteria;
 import ahqpck.hse.safety.model.entity.Incident;
 import ahqpck.hse.safety.model.entity.Observation;
 import ahqpck.hse.safety.model.entity.ObservationComment;
 import ahqpck.hse.safety.model.entity.User;
 import ahqpck.hse.safety.repository.ObservationRepository;
+import ahqpck.hse.safety.service.AreaService;
+import ahqpck.hse.safety.service.ObservationExportService;
 import ahqpck.hse.safety.service.ObservationService;
 import ahqpck.hse.safety.service.UserService;
+import ahqpck.hse.safety.util.ListQuerySupport;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -43,22 +52,114 @@ public class ObservationController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ObservationExportService observationExportService;
+
+    @Autowired
+    private AreaService areaService;
+
     @GetMapping
     public String index(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String observationDateFrom,
+            @RequestParam(defaultValue = "") String observationDateTo,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String mitigation,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "observationDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc,
+            @RequestParam(defaultValue = "") String hiddenColumns,
             Model model) {
-        
-        // Create pageable with default sort by observationDate DESC
-        Pageable pageable = PageRequest.of(page, size, Sort.by("observationDate").descending());
-        Page<Observation> observationsPage = observationRepository.findAll(pageable);
-        
+
+        ObservationSearchCriteria criteria = ObservationSearchCriteria.of(
+                keyword, observationDateFrom, observationDateTo, category, type, status, mitigation, areaCode);
+        boolean ascending = "true".equalsIgnoreCase(asc);
+
+        Page<Observation> observationsPage = observationService.search(criteria, page, size, sortBy, ascending);
+
         model.addAttribute("observationsPage", observationsPage);
-        model.addAttribute("pageSize", size);
-        model.addAttribute("sortBy", "observationDate");
-        model.addAttribute("asc", false);
-        
+        model.addAttribute("pageSize", ListQuerySupport.safeSize(size));
+        model.addAttribute("title", "Observation Report");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("asc", ascending);
+
+        // Echoed back so the filter form keeps its values and the page links keep the filters
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("observationDateFrom", observationDateFrom);
+        model.addAttribute("observationDateTo", observationDateTo);
+        model.addAttribute("category", category);
+        model.addAttribute("type", type);
+        model.addAttribute("status", status);
+        model.addAttribute("mitigation", mitigation);
+        model.addAttribute("areaCode", areaCode);
+        model.addAttribute("hiddenColumns", hiddenColumns);
+
+        // Choices for the filter drop-downs
+        model.addAttribute("categories", Observation.Category.values());
+        model.addAttribute("types", Observation.Type.values());
+        model.addAttribute("statuses", Observation.Status.values());
+        model.addAttribute("mitigations", Observation.Mitigation.values());
+        model.addAttribute("areas", areaService.getAllAreas());
+
         return "observation/index";
+    }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportExcel(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String observationDateFrom,
+            @RequestParam(defaultValue = "") String observationDateTo,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String mitigation,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "observationDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc) {
+        try {
+            ObservationSearchCriteria criteria = ObservationSearchCriteria.of(
+                    keyword, observationDateFrom, observationDateTo, category, type, status, mitigation, areaCode);
+            return download(observationExportService.exportExcel(criteria, sortBy, "true".equalsIgnoreCase(asc)), "observation-report", "xlsx",
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } catch (Exception e) {
+            log.error("Error exporting observations to Excel", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String observationDateFrom,
+            @RequestParam(defaultValue = "") String observationDateTo,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String mitigation,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "observationDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc) {
+        try {
+            ObservationSearchCriteria criteria = ObservationSearchCriteria.of(
+                    keyword, observationDateFrom, observationDateTo, category, type, status, mitigation, areaCode);
+            return download(observationExportService.exportPdf(criteria, sortBy, "true".equalsIgnoreCase(asc)), "observation-report", "pdf", MediaType.APPLICATION_PDF);
+        } catch (Exception e) {
+            log.error("Error exporting observations to PDF", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    private ResponseEntity<byte[]> download(byte[] content, String baseName, String extension, MediaType mediaType) {
+        String filename = baseName + "-" + LocalDate.now() + "." + extension;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
+                .contentType(mediaType)
+                .contentLength(content.length)
+                .body(content);
     }
 
     @GetMapping("/{observationCode}")

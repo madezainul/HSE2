@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>HSE External Training Record</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () { sessionStorage.fonts = true; }
+		});
+	</script>
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header Section -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<h3 class="fw-bold mb-3">HSE External Training Record</h3>
+					<p class="text-muted">Manage HSE External Training Records</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<button type="button" class="btn btn-primary btn-round" data-bs-toggle="modal" data-bs-target="#addExternalModal">
+						<i class="fa fa-plus me-2"></i> Add Record
+					</button>
+				</div>
+			</div>
+
+			<!-- Recent Records Table -->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="card shadow-sm border-0">
+						<div class="card-header bg-gradient bg-info text-white border-0">
+							<div class="card-title text-white mb-0">
+								<i class="fa fa-clock me-2"></i> Recent Records
+							</div>
+						</div>
+						<div class="card-body">
+							<div class="table-responsive">
+								<table class="table table-hover table-sm">
+									<thead>
+										<tr>
+											<th>Code</th>
+											<th>Employee ID</th>
+											<th>Employee Name</th>
+											<th>Training Name</th>
+											<th>Provider</th>
+											<th>Date</th>
+											<th style="width: 80px;">Actions</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr th:each="record : ${recentRecords}">
+											<td>
+												<strong th:text="${record.code}"></strong>
+											</td>
+											<td th:text="${record.employeeId}"></td>
+											<td th:text="${record.employeeName ?: '-'}"></td>
+											<td th:text="${record.trainingName}"></td>
+											<td th:text="${record.provider}"></td>
+											<td th:text="${record.trainingDate != null ? #temporals.format(record.trainingDate, 'yyyy-MM-dd') : '-'}"></td>
+											<td>
+												<a th:href="@{/training/hse-external-training/{code}(code=${record.code})}" class="btn btn-sm btn-info" title="View">
+													<i class="fa fa-eye"></i>
+												</a>
+											</td>
+										</tr>
+										<tr th:if="${#lists.isEmpty(recentRecords)}">
+											<td colspan="7" class="text-center text-muted py-4">
+												<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+												No external training records yet
+											</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+							<div class="text-center mt-3" th:if="${!#lists.isEmpty(recentRecords)}">
+								<a href="/training/hse-external-training" class="btn btn-secondary btn-sm">
+									<i class="fa fa-arrow-right me-2"></i> View All Records
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<!-- External Training Modal Fragment -->
+		<div th:replace="~{fragments/external-modal :: addExternalModal}"></div>
+	</div>
+</body>
+</html>

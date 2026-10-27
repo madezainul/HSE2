@@ -2,6 +2,11 @@
 *.properties
 CLAUDE.md
 task.md
+code-reviewer.md
+review.md
+security-auditor.md
+test-writer.md
+test.md
 
 # Uploaded files
 uploads/

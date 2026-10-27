@@ -29,41 +29,90 @@
 
 	<!-- Custom CSS for active menu styling -->
 	<style>
-		/* Active menu item styling */
-		.sidebar .nav-item.active > a {
-			background-color: #2196F3;
-			color: #fff;
-			font-weight: 600;
-			border-radius: 4px;
+		/*
+		 * Sidebar states
+		 *   inactive      : muted text, light hover
+		 *   active group  : menu with the current page inside it - soft tint + accent bar
+		 *   current page  : solid blue fill, white bar - the strongest item in the menu
+		 */
+
+		/* Inactive items (top level and sub items) */
+		.wrapper .sidebar .nav-item:not(.active) > a p,
+		.wrapper .sidebar .nav-item:not(.active) > a i,
+		.wrapper .sidebar .nav-item:not(.active) > a .caret,
+		.wrapper .sidebar .nav-collapse li a:not(.active) .sub-item,
+		.wrapper .sidebar .nav-collapse li a:not(.active) i {
+			color: rgba(255, 255, 255, 0.55);
+			font-weight: 400;
 		}
 
-		.sidebar .nav-item.active > a:hover {
+		.wrapper .sidebar .nav-item:not(.active) > a,
+		.wrapper .sidebar .nav-collapse li a:not(.active) {
+			border-left: 4px solid transparent;
+			border-radius: 0 4px 4px 0;
+			transition: background-color 0.15s ease;
+		}
+
+		.wrapper .sidebar .nav-item:not(.active) > a:hover,
+		.wrapper .sidebar .nav-collapse li a:not(.active):hover {
+			background-color: rgba(255, 255, 255, 0.08);
+		}
+
+		.wrapper .sidebar .nav-item:not(.active) > a:hover p,
+		.wrapper .sidebar .nav-item:not(.active) > a:hover i,
+		.wrapper .sidebar .nav-collapse li a:not(.active):hover .sub-item {
+			color: #fff;
+		}
+
+		/* Current page - top level item with no sub menu (Incident, Observation, Location) */
+		.wrapper .sidebar .nav-item.active > a {
+			background-color: #2196F3;
+			border-left: 4px solid #fff;
+			border-radius: 0 4px 4px 0;
+			box-shadow: 0 2px 8px rgba(33, 150, 243, 0.45);
+		}
+
+		.wrapper .sidebar .nav-item.active > a:hover {
 			background-color: #1976D2;
 		}
 
-		/* Active submenu item styling */
-		.sidebar .nav-collapse .nav-item a.active {
-			background-color: #64B5F6;
-			color: #fff;
-			font-weight: 500;
+		/* Active group - top level item that holds the current page in its sub menu */
+		.wrapper .sidebar .nav-item.active:has(> .collapse) > a {
+			background-color: rgba(33, 150, 243, 0.18);
 			border-left: 4px solid #2196F3;
-			padding-left: calc(1rem - 4px);
+			box-shadow: none;
+		}
+
+		.wrapper .sidebar .nav-item.active:has(> .collapse) > a:hover {
+			background-color: rgba(33, 150, 243, 0.28);
+		}
+
+		.wrapper .sidebar .nav-item.active:has(> .collapse) > a i {
+			color: #64B5F6;
+		}
+
+		/* Current page - sub item */
+		.wrapper .sidebar .nav-collapse li a.active {
+			background-color: #2196F3;
+			border-left: 4px solid #fff;
 			border-radius: 0 4px 4px 0;
+			box-shadow: 0 2px 8px rgba(33, 150, 243, 0.45);
 		}
 
-		.sidebar .nav-collapse .nav-item a.active:hover {
-			background-color: #42A5F5;
+		.wrapper .sidebar .nav-collapse li a.active:hover {
+			background-color: #1976D2;
 		}
 
-		/* Text color for active items */
-		.sidebar .nav-item.active > a p,
-		.sidebar .nav-collapse .nav-item a.active .sub-item {
+		/* Text and icon color for the current page and active group */
+		.wrapper .sidebar .nav-item.active > a p,
+		.wrapper .sidebar .nav-item.active > a .caret,
+		.wrapper .sidebar .nav-collapse li a.active .sub-item,
+		.wrapper .sidebar .nav-collapse li a.active i {
 			color: #fff;
+			font-weight: 600;
 		}
 
-		/* Icon color for active items */
-		.sidebar .nav-item.active > a i,
-		.sidebar .nav-collapse .nav-item a.active i {
+		.wrapper .sidebar .nav-item.active:not(:has(> .collapse)) > a i {
 			color: #fff;
 		}
 	</style>
@@ -122,7 +171,7 @@
 			<div class="sidebar-wrapper scrollbar scrollbar-inner">
 				<div class="sidebar-content">
 					<ul class="nav nav-secondary">
-						<li class="nav-item" th:classappend="${title == 'Users Management'} ? 'active' : ''" sec:authorize="hasAnyRole('ADMIN', 'MANAGER')">
+						<li class="nav-item" th:classappend="${title == 'Users Management'} ? 'active' : ''" sec:authorize="hasRole('ADMIN')">
 							<a data-bs-toggle="collapse" href="#dashboard" th:classappend="${title == 'Users Management'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Users Management'}">
 								<i class="fas fa-home"></i>
 								<p>Dashboard</p>
@@ -144,29 +193,6 @@
 							</span>
 							<h4 class="text-section">Components</h4>
 						</li>
-						<!-- <li class="nav-item" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? 'active' : ''">
-							<a data-bs-toggle="collapse" href="#observation" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Accident List' or title == 'Incident List'}">
-								<i class="far fa-newspaper"></i>
-								<p>Observation</p>
-								<span class="caret"></span>
-							</a>
-							<div class="collapse" id="observation" th:classappend="${title == 'Accident List' or title == 'Incident List'} ? 'show' : ''">
-								<ul class="nav nav-collapse">
-									<li>
-										<a href="/observation/accident" th:classappend="${title == 'Accident List'} ? 'active' : ''">
-											<i th:if="${title == 'Accident List'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">Accident</span>
-										</a>
-									</li>
-									<li>
-										<a href="/incident" th:classappend="${title == 'Incident List'} ? 'active' : ''">
-											<i th:if="${title == 'Incident List'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">Observation Report</span>
-										</a>
-									</li>
-								</ul>
-							</div>
-						</li> -->
 						<li class="nav-item" th:classappend="${title == 'Incident Report'} ? 'active' : ''">
 							<a href="/incident">
 								<i class="fas fa-clipboard-list"></i>
@@ -211,22 +237,22 @@
 											<span class="sub-item">HSE Form</span>
 										</a>
 									</li>
-									<li>
+									<!-- <li>
 										<a href="/documents/hse-procedure" th:classappend="${title == 'HSE Procedure'} ? 'active' : ''">
 											<i th:if="${title == 'HSE Procedure'}" class="fas fa-angle-right me-2"></i>
 											<span class="sub-item">HSE Procedure</span>
 										</a>
-									</li>
+									</li> -->
 								</ul>
 							</div>
 						</li>
-						<li class="nav-item" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'active' : ''">
-							<a data-bs-toggle="collapse" href="#training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'}">
+						<li class="nav-item" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Records' or title == 'HSE Internal Training Records' or title == 'HSE External Training Records' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Records' or title == 'HSE Internal Training Records' or title == 'HSE External Training Records' or title == 'Certification' or title == 'Toolbox Meeting'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'HSE Training' or title == 'HSE Induction Records' or title == 'HSE Internal Training Records' or title == 'HSE External Training Records' or title == 'Certification' or title == 'Toolbox Meeting'}">
 								<i class="fas fa-book-open"></i>
 								<p>HSE Training</p>
 								<span class="caret"></span>
 							</a>
-							<div class="collapse" id="training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Record' or title == 'HSE External Training Record' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'show' : ''">
+							<div class="collapse" id="training" th:classappend="${title == 'HSE Training' or title == 'HSE Induction Records' or title == 'HSE Internal Training Records' or title == 'HSE External Training Records' or title == 'Certification' or title == 'Toolbox Meeting'} ? 'show' : ''">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="/training/toolbox" th:classappend="${title == 'Toolbox Meeting'} ? 'active' : ''">
@@ -235,21 +261,21 @@
 										</a>
 									</li>
 									<li>
-										<a href="/training/hse-induction" th:classappend="${title == 'HSE Induction Record'} ? 'active' : ''">
-											<i th:if="${title == 'HSE Induction Record'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">HSE Induction Record</span>
+										<a href="/training/induction" th:classappend="${title == 'HSE Induction Records' and pageTitle == 'HSE Induction Records' and !pageTitle.contains('List')} ? 'active' : ''">
+											<i th:if="${title == 'HSE Induction Records' and pageTitle == 'HSE Induction Records' and !pageTitle.contains('List')}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Induction</span>
 										</a>
 									</li>
 									<li>
-										<a href="/training/internal-training" th:classappend="${title == 'HSE Internal Training Record'} ? 'active' : ''">
-											<i th:if="${title == 'HSE Internal Training Record'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">HSE Internal Training Record</span>
+										<a href="/training/internal-training" th:classappend="${title == 'HSE Internal Training Records'} ? 'active' : ''">
+											<i th:if="${title == 'HSE Internal Training Records'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE Internal Training Records</span>
 										</a>
 									</li>
 									<li>
-										<a href="/training/external-training" th:classappend="${title == 'HSE External Training Record'} ? 'active' : ''">
-											<i th:if="${title == 'HSE External Training Record'}" class="fas fa-angle-right me-2"></i>
-											<span class="sub-item">HSE External Training Record</span>
+										<a href="/training/external-training" th:classappend="${title == 'HSE External Training Records'} ? 'active' : ''">
+											<i th:if="${title == 'HSE External Training Records'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">HSE External Training Records</span>
 										</a>
 									</li>
 									<li>
@@ -261,13 +287,13 @@
 								</ul>
 							</div>
 						</li>
-						<li class="nav-item" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? 'active' : ''">
-							<a data-bs-toggle="collapse" href="#inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'}">
+						<li class="nav-item" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Daily Inspection' or title == 'Other Inspection'} ? 'active' : ''">
+							<a data-bs-toggle="collapse" href="#inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Daily Inspection' or title == 'Other Inspection'} ? '' : 'collapsed'" th:attr="aria-expanded=${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Daily Inspection' or title == 'Other Inspection'}">
 								<i class="fas fa-clipboard-check"></i>
 								<p>Inspection</p>
 								<span class="caret"></span>
 							</a>
-							<div class="collapse" id="inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Other Inspection'} ? 'show' : ''">
+							<div class="collapse" id="inspection" th:classappend="${title == 'Fire Safety Inspection' or title == 'Environment Inspection' or title == 'First Aid Inspection' or title == 'Spill Kit Inspection' or title == 'Daily Inspection' or title == 'Other Inspection'} ? 'show' : ''">
 								<ul class="nav nav-collapse">
 									<li>
 										<a href="/inspection/fire-safety" th:classappend="${title == 'Fire Safety Inspection'} ? 'active' : ''">
@@ -291,6 +317,12 @@
 										<a href="/inspection/spill-kit" th:classappend="${title == 'Spill Kit Inspection'} ? 'active' : ''">
 											<i th:if="${title == 'Spill Kit Inspection'}" class="fas fa-angle-right me-2"></i>
 											<span class="sub-item">Spill Kit</span>
+										</a>
+									</li>
+									<li>
+										<a href="/inspection/daily" th:classappend="${title == 'Daily Inspection'} ? 'active' : ''">
+											<i th:if="${title == 'Daily Inspection'}" class="fas fa-angle-right me-2"></i>
+											<span class="sub-item">Daily Inspection</span>
 										</a>
 									</li>
 									<li>
@@ -543,7 +575,7 @@
 												<div class="avatar-lg"><img th:src="${currentUser != null and currentUser.profilePicture != null ? '/file/' + currentUser.profilePicture : '/assets/img/profile.jpg'}" alt="image profile" class="avatar-img rounded"></div>
 												<div class="u-text" th:if="${currentUser != null}">
 										<h4 th:text="${currentUser.username}">User Name</h4>
-										<p class="text-muted" th:text="${currentUser.email ?: 'No email'}">email@example.com</p><a href="/user"
+										<p class="text-muted" th:text="${currentUser.email ?: 'No email'}">email@example.com</p><a href="/profile"
 														class="btn btn-xs btn-secondary btn-sm">View Profile</a>
 												</div>
 											</div>

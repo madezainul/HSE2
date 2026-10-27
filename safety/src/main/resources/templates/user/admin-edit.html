@@ -41,7 +41,19 @@
 				</div>
 			</div>
 
-			<div class="row justify-content-center">
+			<!-- Messages from the last action -->
+				<div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+					<i class="fa fa-check-circle me-2"></i>
+					<span th:text="${successMessage}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+				<div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+					<i class="fa fa-exclamation-circle me-2"></i>
+					<span th:text="${errorMessage}"></span>
+					<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+				</div>
+
+				<div class="row justify-content-center">
 				<div class="col-md-8">
 					<div class="card">
 						<div class="card-header">
@@ -60,6 +72,9 @@
 								<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" role="alert">
 									<i class="fa fa-exclamation-circle me-2"></i>
 									Please correct the errors below.
+									<ul class="mb-0 mt-2" th:if="${#fields.hasGlobalErrors()}">
+										<li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+									</ul>
 								</div>
 
 								<!-- Profile Picture -->
@@ -119,9 +134,22 @@
 									<!-- Department -->
 									<div class="col-md-6 mb-3">
 										<label class="form-label" for="department">Department <span class="text-danger">*</span></label>
-										<input type="text" id="department" th:field="*{department}"
-											class="form-control" th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'"
-											placeholder="Enter department">
+										<select id="department" th:field="*{department}" class="form-select"
+											th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'">
+											<option value="">-- Select Department --</option>
+											<option value="admin">Administration</option>
+											<option value="safety">Safety</option>
+											<option value="operations">Operations</option>
+											<option value="hr">Human Resources</option>
+											<option value="it">IT</option>
+											<option value="qc">QC</option>
+											<option value="production">Production</option>
+											<option value="maintenance">Maintenance</option>
+											<!-- Keep a department that was typed in by hand before this list existed -->
+											<option th:if="${updateProfileRequest.department != null and !#lists.contains({'admin','safety','operations','hr','it','qc','production','maintenance'}, updateProfileRequest.department)}"
+												th:value="${updateProfileRequest.department}"
+												th:text="${updateProfileRequest.department} + ' (current)'"></option>
+										</select>
 										<div class="invalid-feedback" th:if="${#fields.hasErrors('department')}"
 											th:errors="*{department}"></div>
 									</div>
@@ -132,12 +160,14 @@
 									<div class="col-md-6 mb-3">
 										<label class="form-label" for="role">Role <span class="text-danger">*</span></label>
 										<select id="role" th:field="*{role}" class="form-select"
-											th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+											th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'"
+												th:disabled="${currentUser != null and currentUser.id == targetUser.id}">
 											<option value="">-- Select Role --</option>
-											<option value="ADMIN">Admin</option>
+											<option value="ADMIN">Admin - full access, can manage users</option>
 											<option value="MANAGER">Manager</option>
 											<option value="USER">User</option>
-											<option value="VIEWER">Viewer</option>
+											<option value="VIEWER">Viewer - read only</option>
+											<option value="EMPLOYEE">Employee - no sign in</option>
 										</select>
 										<div class="invalid-feedback" th:if="${#fields.hasErrors('role')}"
 											th:errors="*{role}"></div>
@@ -147,13 +177,21 @@
 									<div class="col-md-6 mb-3">
 										<label class="form-label d-block">Account Status</label>
 										<div class="form-check form-switch mt-2">
+											<!-- An unchecked checkbox sends nothing, so this marker tells the server the switch was on the form -->
+											<!-- For your own account the switch is locked and not sent, so the server leaves it unchanged -->
+											<input type="hidden" name="enabledSubmitted" value="true"
+												th:unless="${currentUser != null and currentUser.id == targetUser.id}">
 											<input class="form-check-input" type="checkbox" id="enabled"
 												name="enabled" value="true"
+												th:disabled="${currentUser != null and currentUser.id == targetUser.id}"
 												th:checked="${targetUser.enabled}">
 											<label class="form-check-label" for="enabled">
 												<span th:text="${targetUser.enabled ? 'Active' : 'Inactive'}"></span>
 											</label>
 										</div>
+										<small class="text-muted" th:if="${currentUser != null and currentUser.id == targetUser.id}">
+											You cannot change your own role or deactivate your own account.
+										</small>
 									</div>
 								</div>
 
@@ -184,6 +222,54 @@
 							</form>
 						</div>
 					</div>
+						<!-- Reset password -->
+						<div class="card mt-4">
+							<div class="card-header">
+								<div class="card-title">
+									<i class="fa fa-key me-2"></i> Reset Password
+								</div>
+							</div>
+							<div class="card-body">
+								<p class="text-muted">
+									Set a new temporary password for this user. Email is not set up yet, so tell the user
+									the new password yourself. They will be asked to choose their own password when they sign in.
+								</p>
+								<div th:if="${passwordError}" class="alert alert-danger" role="alert">
+									<i class="fa fa-exclamation-circle me-2"></i>
+									<span th:text="${passwordError}"></span>
+								</div>
+								<form th:action="@{/user/{id}/reset-password(id=${targetUser.id})}" method="post"
+									id="resetPasswordForm" th:data-name="${targetUser.fullName}" autocomplete="off">
+									<div class="row">
+										<div class="col-md-6 mb-3">
+											<label class="form-label" for="newPassword">New Password <span class="text-danger">*</span></label>
+											<div class="input-group">
+												<input type="password" id="newPassword" name="newPassword" class="form-control"
+													autocomplete="new-password" required>
+												<button type="button" class="btn btn-outline-secondary" id="toggleNewPassword"
+													title="Show / hide password">
+													<i class="fa fa-eye"></i>
+												</button>
+											</div>
+											<small class="text-muted">At least 8 characters with uppercase, lowercase and a digit.</small>
+										</div>
+										<div class="col-md-6 mb-3">
+											<label class="form-label" for="confirmNewPassword">Confirm Password <span class="text-danger">*</span></label>
+											<input type="password" id="confirmNewPassword" name="confirmPassword" class="form-control"
+												autocomplete="new-password" required>
+										</div>
+									</div>
+									<div class="d-flex justify-content-end gap-2">
+										<button type="button" class="btn btn-outline-primary" id="generatePassword">
+											<i class="fa fa-random me-1"></i> Generate
+										</button>
+										<button type="submit" class="btn btn-warning">
+											<i class="fa fa-key me-1"></i> Reset Password
+										</button>
+									</div>
+								</form>
+							</div>
+						</div>
 				</div>
 			</div>
 		</div>
@@ -195,6 +281,46 @@
 			document.getElementById('enabled').addEventListener('change', function () {
 				this.nextElementSibling.textContent = this.checked ? 'Active' : 'Inactive';
 			});
+
+			// Reset password: show / hide, generate, confirm
+			(function () {
+				const form = document.getElementById('resetPasswordForm');
+				if (!form) return;
+				const pw = document.getElementById('newPassword');
+				const confirmPw = document.getElementById('confirmNewPassword');
+
+				document.getElementById('toggleNewPassword').addEventListener('click', function () {
+					const show = pw.type === 'password';
+					pw.type = show ? 'text' : 'password';
+					confirmPw.type = pw.type;
+					this.querySelector('i').className = show ? 'fa fa-eye-slash' : 'fa fa-eye';
+				});
+
+				// 12 characters with at least one uppercase letter, lowercase letter and digit
+				document.getElementById('generatePassword').addEventListener('click', function () {
+					const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+					const lower = 'abcdefghijkmnpqrstuvwxyz';
+					const digits = '23456789';
+					const all = upper + lower + digits;
+					const pick = set => set[crypto.getRandomValues(new Uint32Array(1))[0] % set.length];
+					const chars = [pick(upper), pick(lower), pick(digits)];
+					while (chars.length < 12) chars.push(pick(all));
+					for (let i = chars.length - 1; i > 0; i--) {
+						const j = crypto.getRandomValues(new Uint32Array(1))[0] % (i + 1);
+						[chars[i], chars[j]] = [chars[j], chars[i]];
+					}
+					pw.value = confirmPw.value = chars.join('');
+					pw.type = confirmPw.type = 'text';
+					document.getElementById('toggleNewPassword').querySelector('i').className = 'fa fa-eye-slash';
+				});
+
+				form.addEventListener('submit', function (e) {
+					const name = this.getAttribute('data-name') || 'this user';
+					if (!confirm('Reset the password for "' + name + '"? Their current password will stop working.')) {
+						e.preventDefault();
+					}
+				});
+			})();
 
 			// Profile picture preview
 			document.getElementById('profilePicture').addEventListener('change', function () {

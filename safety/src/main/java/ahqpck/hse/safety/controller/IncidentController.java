@@ -1,12 +1,18 @@
 package ahqpck.hse.safety.controller;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import ahqpck.hse.safety.model.dto.IncidentDTO;
 import ahqpck.hse.safety.model.dto.AreaDTO;
+import ahqpck.hse.safety.model.dto.IncidentSearchCriteria;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +33,8 @@ import ahqpck.hse.safety.model.entity.Incident;
 import ahqpck.hse.safety.model.entity.IncidentComment;
 import ahqpck.hse.safety.model.entity.User;
 import ahqpck.hse.safety.repository.IncidentRepository;
+import ahqpck.hse.safety.service.AreaService;
+import ahqpck.hse.safety.service.IncidentExportService;
 import ahqpck.hse.safety.service.IncidentService;
 import ahqpck.hse.safety.service.UserService;
 
@@ -46,22 +54,57 @@ public class IncidentController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private IncidentExportService incidentExportService;
+
+    @Autowired
+    private AreaService areaService;
+
     @GetMapping
     public String index(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String reportDateFrom,
+            @RequestParam(defaultValue = "") String reportDateTo,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String severity,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "reportDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc,
+            @RequestParam(defaultValue = "") String hiddenColumns,
             Model model) {
-        
-        // Create pageable with default sort by reportDate DESC
-        Pageable pageable = PageRequest.of(page, size, Sort.by("reportDate").descending());
-        Page<Incident> incidentsPage = incidentRepository.findAll(pageable);
-        
+
+        IncidentSearchCriteria criteria = IncidentSearchCriteria.of(
+                keyword, reportDateFrom, reportDateTo, type, severity, status, areaCode);
+        boolean ascending = "true".equalsIgnoreCase(asc);
+
+        Page<Incident> incidentsPage = incidentService.search(criteria, page, size, sortBy, ascending);
+
         model.addAttribute("incidentsPage", incidentsPage);
         model.addAttribute("incident", new Incident());
-        model.addAttribute("pageSize", size);
-        model.addAttribute("sortBy", "reportDate");
-        model.addAttribute("asc", false);
-        
+        model.addAttribute("pageSize", IncidentService.safeSize(size));
+        model.addAttribute("title", "Incident Report");
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("asc", ascending);
+
+        // Echoed back so the filter form keeps its values and the page links keep the filters
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("reportDateFrom", reportDateFrom);
+        model.addAttribute("reportDateTo", reportDateTo);
+        model.addAttribute("type", type);
+        model.addAttribute("severity", severity);
+        model.addAttribute("status", status);
+        model.addAttribute("areaCode", areaCode);
+        model.addAttribute("hiddenColumns", hiddenColumns);
+
+        // Choices for the filter drop-downs
+        model.addAttribute("types", Incident.Type.values());
+        model.addAttribute("severities", Incident.SeverityLevel.values());
+        model.addAttribute("statuses", Incident.IncidentStatus.values());
+        model.addAttribute("areas", areaService.getAllAreas());
+
         return "incident/index";
     }
 
@@ -144,6 +187,58 @@ public class IncidentController {
             log.error("Error creating incident: {}", e.getMessage());
             return "redirect:/incident?error=true";
         }
+    }
+
+    @GetMapping("/export/excel")
+    public ResponseEntity<byte[]> exportExcel(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String reportDateFrom,
+            @RequestParam(defaultValue = "") String reportDateTo,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String severity,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "reportDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc) {
+        try {
+            IncidentSearchCriteria criteria = IncidentSearchCriteria.of(
+                    keyword, reportDateFrom, reportDateTo, type, severity, status, areaCode);
+            return download(incidentExportService.exportExcel(criteria, sortBy, "true".equalsIgnoreCase(asc)), "incident-report", "xlsx",
+                    MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        } catch (Exception e) {
+            log.error("Error exporting incidents to Excel", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    @GetMapping("/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String reportDateFrom,
+            @RequestParam(defaultValue = "") String reportDateTo,
+            @RequestParam(defaultValue = "") String type,
+            @RequestParam(defaultValue = "") String severity,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "") String areaCode,
+            @RequestParam(defaultValue = "reportDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc) {
+        try {
+            IncidentSearchCriteria criteria = IncidentSearchCriteria.of(
+                    keyword, reportDateFrom, reportDateTo, type, severity, status, areaCode);
+            return download(incidentExportService.exportPdf(criteria, sortBy, "true".equalsIgnoreCase(asc)), "incident-report", "pdf", MediaType.APPLICATION_PDF);
+        } catch (Exception e) {
+            log.error("Error exporting incidents to PDF", e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    private ResponseEntity<byte[]> download(byte[] content, String baseName, String extension, MediaType mediaType) {
+        String filename = baseName + "-" + LocalDate.now() + "." + extension;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filename).build().toString())
+                .contentType(mediaType)
+                .contentLength(content.length)
+                .body(content);
     }
 
     @GetMapping("/{incidentCode}")

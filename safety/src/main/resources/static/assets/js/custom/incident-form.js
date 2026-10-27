@@ -24,8 +24,10 @@ const IncidentForm = {
 
         // Populate form field for date
         const dateInput = document.getElementById('incidentDate');
-        if (dateInput && incidentData.incidentDate) {
-            const date = new Date(incidentData.incidentDate);
+        // The API sends the date as "reportDate" (older code looked for "incidentDate")
+        const reportDate = incidentData.reportDate || incidentData.incidentDate;
+        if (dateInput && reportDate) {
+            const date = new Date(reportDate);
             dateInput.value = date.getFullYear() + '-' +
                 String(date.getMonth() + 1).padStart(2, '0') + '-' +
                 String(date.getDate()).padStart(2, '0') + 'T' +
@@ -178,11 +180,14 @@ const IncidentForm = {
             const result = await response.json();
 
             if (response.ok) {
-                const successMsg = this.isUpdateMode ? 'Incident updated successfully!' : 'Incident and files saved successfully!';
+                // Remember these now: resetUpdateMode() below clears them before the redirect is built
+                const wasUpdate = this.isUpdateMode;
+                const updatedCode = this.IncidentCode;
+                const successMsg = wasUpdate ? 'Incident updated successfully!' : 'Incident and files saved successfully!';
                 this.showAlert('success', '<strong>' + successMsg + '</strong>');
                 this.resetForm();
                 this.resetUpdateMode();
-                const redirectUrl = this.isUpdateMode ? `/incident/${this.IncidentCode}` : '/incident';
+                const redirectUrl = wasUpdate ? `/incident/${updatedCode}` : '/incident';
                 setTimeout(() => { window.location.href = redirectUrl; }, 1500);
             } else {
                 const errorMsg = result?.message || 'Unknown error';

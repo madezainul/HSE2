@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+</head>
+
+<body>
+	<!-- Add Induction Modal Fragment -->
+	<div class="modal fade" id="addInductionModal" th:fragment="addInductionModal" tabindex="-1"
+		aria-labelledby="addInductionModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addInductionModalLabel">Add HSE Induction Record</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form id="addInductionForm">
+					<!-- Hidden field for induction code (used in UPDATE mode) -->
+					<input type="hidden" id="inductionCodeHidden" value="">
+
+					<div class="modal-body">
+
+						<!-- Row 1: Trainee ID & Trainee Name -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="traineeId" class="form-label">Trainee ID <span
+											class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="traineeId" name="traineeId"
+										placeholder="e.g., EMP-001" required>
+									<small class="text-muted">Employee ID or trainee reference</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="traineeName" class="form-label">Trainee Name</label>
+									<input type="text" class="form-control" id="traineeName" name="traineeName"
+										placeholder="e.g., John Doe">
+									<small class="text-muted">Full name of trainee</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 2: Trainer ID & Trainers -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="trainerId" class="form-label">Trainer ID</label>
+									<input type="text" class="form-control" id="trainerId" name="trainerId"
+										placeholder="e.g., T-001">
+									<small class="text-muted">Trainer ID or reference</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="trainers" class="form-label">Trainers <span
+											class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="trainers" name="trainers"
+										placeholder="e.g., John Doe, Jane Smith" required>
+									<small class="text-muted">Name(s) of trainers who conducted the induction</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Date -->
+						<div class="mb-3">
+							<div class="form-group">
+								<label for="inductionDate" class="form-label">Date <span
+										class="text-danger">*</span></label>
+								<input type="date" class="form-control" id="inductionDate" name="inductionDate"
+									required>
+								<small class="text-muted">Date of induction</small>
+							</div>
+
+						</div>
+
+						<!-- File Upload Section -->
+						<hr>
+						<h6 class="mb-3 text-muted">Attachments <small class="text-muted fw-normal">(optional)</small>
+						</h6>
+
+						<!-- File Upload Area -->
+						<div class="mb-3">
+							<div class="file-upload-area" id="inductionFileUploadArea"
+								style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background-color: #f8f9fa;">
+								<div class="file-upload-icon mb-2">
+									<i class="fa fa-file-upload fa-2x text-primary"></i>
+								</div>
+								<h6 class="mb-1">Drag and drop file here</h6>
+								<p class="text-muted small mb-2">or click to select</p>
+								<p class="text-muted small">
+									<strong>Allowed:</strong> Images (JPG, PNG, WEBP) and Documents (PDF, DOC, DOCX,
+									XLS, XLSX)
+									<br>
+									<strong>Max size:</strong> 5MB
+								</p>
+
+								<!-- Hidden file input -->
+								<input type="file" id="inductionFileInput"
+									accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx" style="display: none;">
+							</div>
+						</div>
+
+						<!-- File Preview -->
+						<div id="inductionFilePreview" class="mb-3" style="display: none;">
+							<div class="card border-0 shadow-sm">
+								<div class="card-body p-3">
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="d-flex align-items-center flex-grow-1">
+											<i id="filePreviewIcon" style="font-size: 1.5rem; margin-right: 12px;"></i>
+											<div class="flex-grow-1">
+												<p class="mb-1 fw-bold text-truncate" id="filePreviewName"></p>
+												<small class="text-muted" id="filePreviewSize"></small>
+											</div>
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-danger" id="clearFileBtn">
+											<i class="fa fa-trash"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Empty state message -->
+						<div id="noFileMessage" class="text-center text-muted py-3">
+							<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+							<small>No file selected</small>
+						</div>
+
+						<!-- Hidden file input for form submission -->
+						<input type="file" id="inductionFileField" name="inductionFile" style="display: none;">
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="submitInductionBtn">
+							<i class="fa fa-save me-2"></i> Save Record
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Script for Induction Modal File Upload and Form Submission -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const modal = document.getElementById('addInductionModal');
+			const form = document.getElementById('addInductionForm');
+			const fileUploadArea = document.getElementById('inductionFileUploadArea');
+			const fileInput = document.getElementById('inductionFileInput');
+			const fileField = document.getElementById('inductionFileField');
+			const filePreview = document.getElementById('inductionFilePreview');
+			const noFileMessage = document.getElementById('noFileMessage');
+			const clearFileBtn = document.getElementById('clearFileBtn');
+			const submitBtn = document.getElementById('submitInductionBtn');
+			const traineeIdInput = document.getElementById('traineeId');
+			const traineeNameInput = document.getElementById('traineeName');
+			const dateInput = document.getElementById('inductionDate');
+			const trainerIdInput = document.getElementById('trainerId');
+			const trainersInput = document.getElementById('trainers');
+
+			const allowedImageTypes = ['jpg', 'jpeg', 'png', 'webp'];
+			const allowedDocTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+			const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+			let selectedFile = null;
+
+			// Set today's date as default
+			const today = new Date().toISOString().split('T')[0];
+
+			// Reset form when modal is shown
+			if (modal) {
+				modal.addEventListener('show.bs.modal', function () {
+					form.reset();
+					dateInput.value = today;
+					selectedFile = null;
+					updateFilePreview();
+				});
+			}
+
+			// Click to upload
+			fileUploadArea.addEventListener('click', function () {
+				fileInput.click();
+			});
+
+			// Drag and drop
+			fileUploadArea.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#0d6efd';
+				fileUploadArea.style.backgroundColor = '#e7f1ff';
+			});
+
+			fileUploadArea.addEventListener('dragleave', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+			});
+
+			fileUploadArea.addEventListener('drop', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+
+				const files = e.dataTransfer.files;
+				if (files.length > 0) {
+					handleFileSelect(files[0]);
+				}
+			});
+
+			// File input change
+			fileInput.addEventListener('change', function () {
+				if (this.files.length > 0) {
+					handleFileSelect(this.files[0]);
+				}
+			});
+
+			// Handle file selection
+			function handleFileSelect(file) {
+				// Validate file size
+				if (file.size > maxFileSize) {
+					alert(`File "${file.name}" exceeds 5MB limit.`);
+					return;
+				}
+
+				const ext = getFileExtension(file.name);
+				if (!allowedImageTypes.includes(ext) && !allowedDocTypes.includes(ext)) {
+					alert(`File "${file.name}" has unsupported format.`);
+					return;
+				}
+
+				selectedFile = file;
+
+				// Update hidden file field using DataTransfer
+				const dataTransfer = new DataTransfer();
+				dataTransfer.items.add(file);
+				fileField.files = dataTransfer.files;
+
+				updateFilePreview();
+			}
+
+			// Update file preview display
+			function updateFilePreview() {
+				if (!selectedFile) {
+					filePreview.style.display = 'none';
+					noFileMessage.style.display = 'block';
+					return;
+				}
+
+				const ext = getFileExtension(selectedFile.name);
+				const icon = getFileIcon(ext);
+				const color = getFileColor(ext);
+				const size = formatFileSize(selectedFile.size);
+
+				document.getElementById('filePreviewIcon').innerHTML = `<i class="${icon}" style="color: ${color};"></i>`;
+				document.getElementById('filePreviewName').textContent = selectedFile.name;
+				document.getElementById('filePreviewSize').textContent = size;
+
+				filePreview.style.display = 'block';
+				noFileMessage.style.display = 'none';
+			}
+
+			// Clear selected file
+			clearFileBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				selectedFile = null;
+				fileInput.value = '';
+				fileField.value = '';
+				updateFilePreview();
+			});
+
+			// Form submission
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+
+				// Validate required fields
+				if (!traineeIdInput.value.trim()) {
+					alert('Please enter Trainee ID');
+					return;
+				}
+				if (!dateInput.value) {
+					alert('Please select a Date');
+					return;
+				}
+				if (!trainersInput.value.trim()) {
+					alert('Please enter Trainers');
+					return;
+				}
+
+				// Create FormData
+				const formData = new FormData();
+				formData.append('traineeId', traineeIdInput.value);
+				formData.append('traineeName', traineeNameInput.value);
+				formData.append('inductionDate', dateInput.value);
+				formData.append('trainerId', trainerIdInput.value);
+				formData.append('trainers', trainersInput.value);
+
+				if (selectedFile) {
+					formData.append('inductionFile', selectedFile);
+				}
+
+				// Show loading state
+				submitBtn.disabled = true;
+				const originalText = submitBtn.innerHTML;
+				submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Saving...';
+
+				// Send to API
+				fetch('/api/hse-induction', {
+					method: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+					},
+					body: formData
+				})
+					.then(response => {
+						if (response.ok) {
+							return response.json();
+						} else {
+							return response.json().then(data => {
+								throw new Error(data.message || 'Error creating record');
+							});
+						}
+					})
+					.then(data => {
+						alert('HSE Induction Record created successfully!');
+						const bootstrapModal = bootstrap.Modal.getInstance(modal);
+						if (bootstrapModal) bootstrapModal.hide();
+						window.location.reload();
+					})
+					.catch(error => {
+						console.error('Error:', error);
+						alert('Error: ' + error.message);
+						submitBtn.disabled = false;
+						submitBtn.innerHTML = originalText;
+					});
+			});
+
+			// Helper functions
+			function getFileExtension(filename) {
+				if (!filename.includes('.')) return '';
+				return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+			}
+
+			function getFileIcon(ext) {
+				const imageExts = ['jpg', 'jpeg', 'png', 'webp'];
+				if (imageExts.includes(ext)) {
+					return 'fa fa-file-image';
+				}
+
+				return {
+					'pdf': 'fa fa-file-pdf',
+					'doc': 'fa fa-file-word',
+					'docx': 'fa fa-file-word',
+					'xls': 'fa fa-file-excel',
+					'xlsx': 'fa fa-file-excel'
+				}[ext] || 'fa fa-file';
+			}
+
+			function getFileColor(ext) {
+				const colorMap = {
+					'jpg': '#0dcaf0', 'jpeg': '#0dcaf0', 'png': '#0dcaf0', 'webp': '#0dcaf0',
+					'pdf': '#dc3545',
+					'doc': '#0d6efd', 'docx': '#0d6efd',
+					'xls': '#198754', 'xlsx': '#198754'
+				};
+				return colorMap[ext] || '#6c757d';
+			}
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+			}
+		});
+	</script>
+
+</body>
+
+</html>

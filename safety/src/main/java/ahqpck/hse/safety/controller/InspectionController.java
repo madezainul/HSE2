@@ -57,6 +57,16 @@ public class InspectionController {
         return "inspection/spill-kit";
     }
 
+    @GetMapping("/daily")
+    public String daily(Model model) {
+        log.info("Viewing Daily Inspection page");
+        model.addAttribute("title", "Daily Inspection");
+        model.addAttribute("pageTitle", "Daily Inspection Documents");
+        model.addAttribute("moduleUrl", "daily-inspection");
+        model.addAttribute("documents", documentService.findByModule(HseDocument.Module.DAILY_INSPECTION));
+        return "inspection/daily";
+    }
+
     @GetMapping("/other")
     public String other(Model model) {
         log.info("Viewing Other Inspection page");

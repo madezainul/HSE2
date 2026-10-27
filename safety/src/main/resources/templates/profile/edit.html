@@ -275,7 +275,7 @@
                         <a class="nav-link" href="/">Dashboard</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="/user">Profile</a>
+                        <a class="nav-link active" href="/profile">Profile</a>
                     </li>
                     <li class="nav-item">
                         <form method="POST" action="/auth/logout" style="display: inline;">
@@ -303,13 +303,16 @@
 
         <!-- Form Container -->
         <div class="form-container">
-            <!-- Error Messages -->
-            <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger-custom alert-custom" role="alert">
-                <i class="fas fa-exclamation-circle"></i> Please fix the errors below
-            </div>
 
             <!-- Edit Profile Form -->
-            <form method="POST" action="/user/edit" th:object="${updateProfileRequest}">
+            <form method="POST" action="/profile/edit" th:object="${updateOwnProfileRequest}">
+                <!-- Error Messages (inside the form: #fields needs th:object) -->
+                <div th:if="${#fields.hasErrors('*')}" class="alert alert-danger-custom alert-custom" role="alert">
+                <i class="fas fa-exclamation-circle"></i> Please fix the errors below
+                <ul class="mb-0 mt-2" th:if="${#fields.hasGlobalErrors()}">
+                <li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+                </ul>
+                </div>
                 <!-- Personal Information Section -->
                 <div class="form-section">
                     <h5><i class="fas fa-user"></i> Personal Information</h5>
@@ -335,7 +338,7 @@
 
                         <div class="form-group">
                             <label for="email" class="form-label">
-                                Email <span class="form-text-required">*</span>
+                                Email <small class="text-muted">(optional)</small>
                             </label>
                             <input
                                 type="email"
@@ -343,51 +346,30 @@
                                 id="email"
                                 th:field="*{email}"
                                 th:classappend="${#fields.hasErrors('email') ? 'is-invalid' : ''}"
-                                placeholder="your@email.com"
-                                required>
+                                placeholder="your@email.com">
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('email')}">
                                 <span th:errors="*{email}"></span>
                             </div>
-                            <small class="form-text">Used for system notifications</small>
+                            <small class="form-text">Not used yet. Will be used for password reset and notices later.</small>
                         </div>
                     </div>
                 </div>
 
-                <!-- Work Information Section -->
+                <!-- Work Information Section (set by an administrator) -->
                 <div class="form-section">
                     <h5><i class="fas fa-briefcase"></i> Work Information</h5>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="department" class="form-label">
-                                Department <span class="form-text-required">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="department"
-                                th:field="*{department}"
-                                th:classappend="${#fields.hasErrors('department') ? 'is-invalid' : ''}"
-                                placeholder="e.g., Administration, Engineering"
-                                required>
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('department')}">
-                                <span th:errors="*{department}"></span>
-                            </div>
-                            <small class="form-text">Your department or team</small>
+                            <label class="form-label">Department</label>
+                            <input type="text" class="form-control" th:value="${user.department}" disabled>
+                            <small class="form-text">Changed by an administrator</small>
                         </div>
 
                         <div class="form-group">
-                            <label for="role" class="form-label">
-                                Role
-                            </label>
-                            <input
-                                type="text"
-                                class="form-control"
-                                id="role"
-                                th:field="*{role}"
-                                placeholder="Read-only"
-                                disabled>
-                            <small class="form-text">Your role cannot be changed here</small>
+                            <label class="form-label">Role</label>
+                            <input type="text" class="form-control" th:value="${user.role}" disabled>
+                            <small class="form-text">Changed by an administrator</small>
                         </div>
                     </div>
                 </div>
@@ -397,7 +379,7 @@
                     <button type="submit" class="btn-primary-custom">
                         <i class="fas fa-save"></i> Save Changes
                     </button>
-                    <a href="/user" class="btn-secondary-custom">
+                    <a href="/profile" class="btn-secondary-custom">
                         <i class="fas fa-times"></i> Cancel
                     </a>
                 </div>

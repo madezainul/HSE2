@@ -2,6 +2,7 @@ package ahqpck.hse.safety.repository;
 
 import ahqpck.hse.safety.model.entity.ToolboxMeeting;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ToolboxMeetingRepository extends JpaRepository<ToolboxMeeting, String> {
+public interface ToolboxMeetingRepository extends JpaRepository<ToolboxMeeting, String>, JpaSpecificationExecutor<ToolboxMeeting> {
 
     Optional<ToolboxMeeting> findByCode(String code);
 

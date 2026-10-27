@@ -63,6 +63,11 @@ public class User implements UserDetails {
     @Builder.Default
     private Boolean credentialsNonExpired = true;
 
+    /** Set when an administrator resets the password; the user must choose their own before using the app. */
+    @Column(name = "must_change_password", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    @Builder.Default
+    private Boolean mustChangePassword = false;
+
     @Column(nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();

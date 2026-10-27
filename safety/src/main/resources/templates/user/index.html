@@ -50,7 +50,7 @@
 					<p class="text-muted">Manage and track all system users</p>
 				</div>
 				<div class="ms-md-auto py-2 py-md-0">
-					<a href="/auth/register" class="btn btn-primary btn-round">
+					<a th:href="@{/user/new}" class="btn btn-primary btn-round">
 						<i class="fa fa-plus me-2"></i> Add New User
 					</a>
 				</div>
@@ -61,37 +61,43 @@
 				<div class="col-md-12">
 					<div class="card">
 						<!-- Filters Section -->
-						<div class="row g-3 p-3 px-4 pt-4">
-							<div class="col-md-4">
-								<label class="form-label">Search</label>
-								<input type="text" class="form-control form-control-sm" placeholder="Search by Employee ID, Name, or Email...">
-							</div>
-							<div class="col-md-3">
-								<label class="form-label">Role</label>
-								<select class="form-select form-select-sm">
-									<option selected>All Roles</option>
-									<option>Admin</option>
-									<option>Manager</option>
-									<option>User</option>
-									<option>Viewer</option>
-								</select>
-							</div>
-							<div class="col-md-2">
-								<label class="form-label">Status</label>
-								<select class="form-select form-select-sm">
-									<option selected>All Status</option>
-									<option>Active</option>
-									<option>Inactive</option>
-								</select>
-							</div>
-							<div class="col-md-2">
-								<label class="form-label">&nbsp;</label>
-								<button class="btn btn-sm btn-info w-100">
-									<i class="fa fa-filter me-2"></i> Filter
-								</button>
-							</div>
-						</div>
-						<!-- End of Filters Section -->
+							<form method="get" th:action="@{/user}" class="row g-3 p-3 px-4 pt-4">
+								<input type="hidden" name="size" th:value="${pageSize}">
+								<div class="col-md-4">
+									<label class="form-label" for="keyword">Search</label>
+									<input type="text" id="keyword" name="keyword" th:value="${keyword}"
+										class="form-control form-control-sm"
+										placeholder="Employee ID, name, username or email...">
+								</div>
+								<div class="col-md-3">
+									<label class="form-label" for="roleFilter">Role</label>
+									<select id="roleFilter" name="role" class="form-select form-select-sm">
+										<option value="">All Roles</option>
+										<option value="ADMIN" th:selected="${#strings.equalsIgnoreCase(role, 'ADMIN')}">Admin</option>
+										<option value="MANAGER" th:selected="${#strings.equalsIgnoreCase(role, 'MANAGER')}">Manager</option>
+										<option value="USER" th:selected="${#strings.equalsIgnoreCase(role, 'USER')}">User</option>
+										<option value="VIEWER" th:selected="${#strings.equalsIgnoreCase(role, 'VIEWER')}">Viewer</option>
+										<option value="EMPLOYEE" th:selected="${#strings.equalsIgnoreCase(role, 'EMPLOYEE')}">Employee</option>
+									</select>
+								</div>
+								<div class="col-md-2">
+									<label class="form-label" for="statusFilter">Status</label>
+									<select id="statusFilter" name="status" class="form-select form-select-sm">
+										<option value="">All Status</option>
+										<option value="active" th:selected="${#strings.equalsIgnoreCase(status, 'active')}">Active</option>
+										<option value="inactive" th:selected="${#strings.equalsIgnoreCase(status, 'inactive')}">Inactive</option>
+									</select>
+								</div>
+								<div class="col-md-3 d-flex align-items-end gap-2">
+									<button type="submit" class="btn btn-sm btn-info flex-fill">
+										<i class="fa fa-filter me-1"></i> Filter
+									</button>
+									<a th:href="@{/user}" class="btn btn-sm btn-secondary flex-fill">
+										<i class="fa fa-undo me-1"></i> Reset
+									</a>
+								</div>
+							</form>
+							<!-- End of Filters Section -->
 						<div class="card-body">
 							<div class="table-responsive">
 								<table class="table table-hover table-responsive table-head-bg-info">
@@ -118,18 +124,19 @@
 											<td><strong th:text="${user.employeeId}" th:data-user-id="${user.id}"></strong></td>
 											<td th:text="${user.fullName}"></td>
 											<td th:text="${user.email}"></td>
-											<td>
+											<td th:with="role=${user.role != null ? #strings.toLowerCase(user.role) : ''}">
 												<span class="badge" th:classappend="${
-													user.role == 'admin' ? 'bg-danger' :
-													user.role == 'manager' ? 'bg-warning' :
-													user.role == 'user' ? 'bg-info' :
-													user.role == 'employee' ? 'bg-success' :
+													role == 'admin' ? 'bg-danger' :
+													role == 'manager' ? 'bg-warning' :
+													role == 'user' ? 'bg-info' :
+													role == 'employee' ? 'bg-success' :
 													'bg-secondary'
 												}" th:text="${
-													user.role == 'admin' ? 'Administrator' :
-													user.role == 'manager' ? 'Manager' :
-													user.role == 'user' ? 'User' :
-													user.role == 'employee' ? 'Employee' :
+													role == 'admin' ? 'Administrator' :
+													role == 'manager' ? 'Manager' :
+													role == 'user' ? 'User' :
+													role == 'employee' ? 'Employee' :
+													role == 'viewer' ? 'Viewer' :
 													(user.role ?: 'N/A')
 												}"></span>
 											</td>
@@ -151,7 +158,9 @@
 												<a th:href="@{/user/{id}/edit(id=${user.id})}" class="btn btn-sm btn-warning me-2" title="Edit">
 													<i class="fa fa-edit"></i>
 												</a>
-												<form th:action="@{/user/{id}/delete(id=${user.id})}" method="post" class="d-inline delete-user-form"
+												<!-- You cannot delete your own account -->
+												<form th:unless="${currentUser != null and currentUser.id == user.id}"
+													th:action="@{/user/{id}/delete(id=${user.id})}" method="post" class="d-inline delete-user-form"
 													th:data-name="${user.fullName}">
 													<button type="submit" class="btn btn-sm btn-danger" title="Delete">
 														<i class="fa fa-trash"></i>
@@ -163,7 +172,8 @@
 										<tr th:if="${usersPage.isEmpty()}">
 											<td colspan="8" class="text-center text-muted py-4">
 												<i class="fa fa-inbox fa-2x mb-3"></i>
-												<p>No users found</p>
+												<p th:if="${#strings.isEmpty(keyword) and #strings.isEmpty(role) and #strings.isEmpty(status)}">No users found</p>
+													<p th:unless="${#strings.isEmpty(keyword) and #strings.isEmpty(role) and #strings.isEmpty(status)}">No users match these filters</p>
 											</td>
 										</tr>
 									</tbody>
@@ -181,19 +191,19 @@
 						<ul class="pagination justify-content-center">
 							<!-- Previous button -->
 							<li class="page-item" th:classappend="${usersPage.isFirst() ? 'disabled' : ''}">
-								<a class="page-link" th:href="@{/user(page=${usersPage.number - 1}, size=${usersPage.size})}" tabindex="-1">Previous</a>
+								<a class="page-link" th:href="@{/user(page=${usersPage.number - 1}, size=${usersPage.size}, keyword=${keyword}, role=${role}, status=${status})}" tabindex="-1">Previous</a>
 							</li>
 
 							<!-- Page numbers -->
 							<th:block th:each="i : ${#numbers.sequence(0, usersPage.totalPages - 1)}">
 								<li class="page-item" th:classappend="${i == usersPage.number ? 'active' : ''}">
-									<a class="page-link" th:href="@{/user(page=${i}, size=${usersPage.size})}" th:text="${i + 1}"></a>
+									<a class="page-link" th:href="@{/user(page=${i}, size=${usersPage.size}, keyword=${keyword}, role=${role}, status=${status})}" th:text="${i + 1}"></a>
 								</li>
 							</th:block>
 
 							<!-- Next button -->
 							<li class="page-item" th:classappend="${usersPage.isLast() ? 'disabled' : ''}">
-								<a class="page-link" th:href="@{/user(page=${usersPage.number + 1}, size=${usersPage.size})}">Next</a>
+								<a class="page-link" th:href="@{/user(page=${usersPage.number + 1}, size=${usersPage.size}, keyword=${keyword}, role=${role}, status=${status})}">Next</a>
 							</li>
 						</ul>
 					</nav>
@@ -214,7 +224,7 @@
 			document.querySelectorAll('.delete-user-form').forEach(function (form) {
 				form.addEventListener('submit', function (e) {
 					var name = this.getAttribute('data-name') || 'this user';
-					if (!confirm('Are you sure you want to delete user "' + name + '"? This action cannot be undone.')) {
+					if (!confirm('Delete user "' + name + '"? This cannot be undone. To keep their records, deactivate the account instead (Edit, then Active).')) {
 						e.preventDefault();
 					}
 				});

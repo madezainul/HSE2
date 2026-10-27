@@ -120,6 +120,7 @@ public class HseDocumentService {
             case ENVIRONMENT_INSPECTION -> "ENI";
             case FIRST_AID_INSPECTION -> "FAI";
             case SPILL_KIT_INSPECTION -> "SKI";
+            case DAILY_INSPECTION -> "DLI";
             case OTHER_INSPECTION -> "OTI";
         };
     }
@@ -134,6 +135,7 @@ public class HseDocumentService {
             case ENVIRONMENT_INSPECTION -> FileCategory.ENVIRONMENT_INSPECTION_DOCUMENT;
             case FIRST_AID_INSPECTION -> FileCategory.FIRST_AID_INSPECTION_DOCUMENT;
             case SPILL_KIT_INSPECTION -> FileCategory.SPILL_KIT_INSPECTION_DOCUMENT;
+            case DAILY_INSPECTION -> FileCategory.DAILY_INSPECTION_DOCUMENT;
             case OTHER_INSPECTION -> FileCategory.OTHER_INSPECTION_DOCUMENT;
         };
     }

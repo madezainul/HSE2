@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+</head>
+
+<body>
+	<!-- Add External Training Modal Fragment -->
+	<div class="modal fade" id="addExternalModal" th:fragment="addExternalModal" tabindex="-1"
+		aria-labelledby="addExternalModalLabel" aria-hidden="true">
+		<div class="modal-dialog modal-lg">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="addExternalModalLabel">Add HSE External Training Record</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<form id="addExternalForm">
+					<div class="modal-body">
+
+						<!-- Row 1: Employee ID & Employee Name -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extEmployeeId" class="form-label">Employee ID <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="extEmployeeId" name="employeeId"
+										placeholder="e.g., EMP-001" required>
+									<small class="text-muted">Employee ID or reference number</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extEmployeeName" class="form-label">Employee Name</label>
+									<input type="text" class="form-control" id="extEmployeeName" name="employeeName"
+										placeholder="e.g., John Doe">
+									<small class="text-muted">Full name of employee</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 2: Training Name & Provider -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extTrainingName" class="form-label">Training Name <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="extTrainingName" name="trainingName"
+										placeholder="e.g., Confined Space Entry" required>
+									<small class="text-muted">Name/topic of the training</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extProvider" class="form-label">Provider <span class="text-danger">*</span></label>
+									<input type="text" class="form-control" id="extProvider" name="provider"
+										placeholder="e.g., Training Institute Name" required>
+									<small class="text-muted">Organization that delivered the training</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 3: Date & Duration -->
+						<div class="row mb-3">
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extTrainingDate" class="form-label">Date <span class="text-danger">*</span></label>
+									<input type="date" class="form-control" id="extTrainingDate" name="trainingDate" required>
+									<small class="text-muted">Date of training</small>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="form-group">
+									<label for="extDuration" class="form-label">Duration (Hours)</label>
+									<input type="number" class="form-control" id="extDuration" name="duration"
+										placeholder="e.g., 8" min="0" step="0.5">
+									<small class="text-muted">Training duration in hours</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- Row 4: Remarks -->
+						<div class="row mb-3">
+							<div class="col-md-12">
+								<div class="form-group">
+									<label for="extRemarks" class="form-label">Remarks</label>
+									<input type="text" class="form-control" id="extRemarks" name="remarks"
+										placeholder="Additional notes">
+									<small class="text-muted">Any additional remarks</small>
+								</div>
+							</div>
+						</div>
+
+						<!-- File Upload Section -->
+						<hr>
+						<h6 class="mb-3 text-muted">Attachments <small class="text-muted fw-normal">(optional)</small></h6>
+
+						<!-- File Upload Area -->
+						<div class="mb-3">
+							<div class="file-upload-area" id="externalFileUploadArea"
+								style="border: 2px dashed #dee2e6; border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease; background-color: #f8f9fa;">
+								<div class="file-upload-icon mb-2">
+									<i class="fa fa-file-upload fa-2x text-primary"></i>
+								</div>
+								<h6 class="mb-1">Drag and drop file here</h6>
+								<p class="text-muted small mb-2">or click to select</p>
+								<p class="text-muted small">
+									<strong>Allowed:</strong> Images (JPG, PNG, WEBP) and Documents (PDF, DOC, DOCX, XLS, XLSX)
+									<br>
+									<strong>Max size:</strong> 5MB
+								</p>
+
+								<!-- Hidden file input -->
+								<input type="file" id="externalFileInput"
+									accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+									style="display: none;">
+							</div>
+						</div>
+
+						<!-- File Preview -->
+						<div id="externalFilePreview" class="mb-3" style="display: none;">
+							<div class="card border-0 shadow-sm">
+								<div class="card-body p-3">
+									<div class="d-flex align-items-center justify-content-between">
+										<div class="d-flex align-items-center flex-grow-1">
+											<i id="extFilePreviewIcon" style="font-size: 1.5rem; margin-right: 12px;"></i>
+											<div class="flex-grow-1">
+												<p class="mb-1 fw-bold text-truncate" id="extFilePreviewName"></p>
+												<small class="text-muted" id="extFilePreviewSize"></small>
+											</div>
+										</div>
+										<button type="button" class="btn btn-sm btn-outline-danger" id="extClearFileBtn">
+											<i class="fa fa-trash"></i>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<!-- Empty state message -->
+						<div id="extNoFileMessage" class="text-center text-muted py-3">
+							<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+							<small>No file selected</small>
+						</div>
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+						<button type="submit" class="btn btn-primary" id="submitExternalBtn">
+							<i class="fa fa-save me-2"></i> Save Record
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+	<!-- Script for External Training Modal File Upload and Form Submission -->
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			const modal = document.getElementById('addExternalModal');
+			const form = document.getElementById('addExternalForm');
+			const fileUploadArea = document.getElementById('externalFileUploadArea');
+			const fileInput = document.getElementById('externalFileInput');
+			const filePreview = document.getElementById('externalFilePreview');
+			const noFileMessage = document.getElementById('extNoFileMessage');
+			const clearFileBtn = document.getElementById('extClearFileBtn');
+			const submitBtn = document.getElementById('submitExternalBtn');
+			const employeeIdInput = document.getElementById('extEmployeeId');
+			const employeeNameInput = document.getElementById('extEmployeeName');
+			const trainingNameInput = document.getElementById('extTrainingName');
+			const providerInput = document.getElementById('extProvider');
+			const trainingDateInput = document.getElementById('extTrainingDate');
+			const durationInput = document.getElementById('extDuration');
+			const remarksInput = document.getElementById('extRemarks');
+
+			const allowedImageTypes = ['jpg', 'jpeg', 'png', 'webp'];
+			const allowedDocTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
+			const maxFileSize = 5 * 1024 * 1024; // 5MB
+
+			let selectedFile = null;
+
+			// Set today's date as default
+			const today = new Date().toISOString().split('T')[0];
+
+			// Reset form when modal is shown
+			if (modal) {
+				modal.addEventListener('show.bs.modal', function () {
+					form.reset();
+					trainingDateInput.value = today;
+					selectedFile = null;
+					fileInput.value = '';
+					updateFilePreview();
+				});
+			}
+
+			// Click to upload
+			fileUploadArea.addEventListener('click', function () {
+				fileInput.click();
+			});
+
+			// Drag and drop
+			fileUploadArea.addEventListener('dragover', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#0d6efd';
+				fileUploadArea.style.backgroundColor = '#e7f1ff';
+			});
+
+			fileUploadArea.addEventListener('dragleave', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+			});
+
+			fileUploadArea.addEventListener('drop', function (e) {
+				e.preventDefault();
+				fileUploadArea.style.borderColor = '#dee2e6';
+				fileUploadArea.style.backgroundColor = '#f8f9fa';
+
+				const files = e.dataTransfer.files;
+				if (files.length > 0) {
+					handleFileSelect(files[0]);
+				}
+			});
+
+			// File input change
+			fileInput.addEventListener('change', function () {
+				if (this.files.length > 0) {
+					handleFileSelect(this.files[0]);
+				}
+			});
+
+			// Handle file selection
+			function handleFileSelect(file) {
+				if (file.size > maxFileSize) {
+					alert(`File "${file.name}" exceeds 5MB limit.`);
+					return;
+				}
+
+				const ext = getFileExtension(file.name);
+				if (!allowedImageTypes.includes(ext) && !allowedDocTypes.includes(ext)) {
+					alert(`File "${file.name}" has unsupported format.`);
+					return;
+				}
+
+				selectedFile = file;
+				updateFilePreview();
+			}
+
+			// Update file preview display
+			function updateFilePreview() {
+				if (!selectedFile) {
+					filePreview.style.display = 'none';
+					noFileMessage.style.display = 'block';
+					return;
+				}
+
+				const ext = getFileExtension(selectedFile.name);
+				const icon = getFileIcon(ext);
+				const color = getFileColor(ext);
+
+				document.getElementById('extFilePreviewIcon').innerHTML = `<i class="${icon}" style="color: ${color};"></i>`;
+				document.getElementById('extFilePreviewName').textContent = selectedFile.name;
+				document.getElementById('extFilePreviewSize').textContent = formatFileSize(selectedFile.size);
+
+				filePreview.style.display = 'block';
+				noFileMessage.style.display = 'none';
+			}
+
+			// Clear selected file
+			clearFileBtn.addEventListener('click', function (e) {
+				e.preventDefault();
+				selectedFile = null;
+				fileInput.value = '';
+				updateFilePreview();
+			});
+
+			// Form submission
+			form.addEventListener('submit', function (e) {
+				e.preventDefault();
+
+				// Validate required fields
+				if (!employeeIdInput.value.trim()) {
+					alert('Please enter Employee ID');
+					return;
+				}
+				if (!trainingNameInput.value.trim()) {
+					alert('Please enter Training Name');
+					return;
+				}
+				if (!providerInput.value.trim()) {
+					alert('Please enter Provider');
+					return;
+				}
+				if (!trainingDateInput.value) {
+					alert('Please select a Date');
+					return;
+				}
+
+				// Create FormData
+				const formData = new FormData();
+				formData.append('employeeId', employeeIdInput.value.trim());
+				formData.append('employeeName', employeeNameInput.value.trim());
+				formData.append('trainingName', trainingNameInput.value.trim());
+				formData.append('provider', providerInput.value.trim());
+				formData.append('trainingDate', trainingDateInput.value);
+				if (durationInput.value) {
+					formData.append('duration', durationInput.value);
+				}
+				formData.append('remarks', remarksInput.value.trim());
+
+				if (selectedFile) {
+					formData.append('externalFile', selectedFile);
+				}
+
+				// Show loading state
+				submitBtn.disabled = true;
+				const originalText = submitBtn.innerHTML;
+				submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin me-2"></i> Saving...';
+
+				// Send to API
+				fetch('/api/hse-external-training', {
+					method: 'POST',
+					headers: {
+						'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]')?.getAttribute('content')
+					},
+					body: formData
+				})
+				.then(response => {
+					if (response.ok) {
+						return response.json();
+					}
+					return response.json().then(data => {
+						throw new Error(data.message || 'Error creating record');
+					});
+				})
+				.then(() => {
+					alert('HSE External Training Record created successfully!');
+					const bootstrapModal = bootstrap.Modal.getInstance(modal);
+					if (bootstrapModal) bootstrapModal.hide();
+					window.location.reload();
+				})
+				.catch(error => {
+					console.error('Error:', error);
+					alert('Error: ' + error.message);
+					submitBtn.disabled = false;
+					submitBtn.innerHTML = originalText;
+				});
+			});
+
+			// Helper functions
+			function getFileExtension(filename) {
+				if (!filename.includes('.')) return '';
+				return filename.substring(filename.lastIndexOf('.') + 1).toLowerCase();
+			}
+
+			function getFileIcon(ext) {
+				if (allowedImageTypes.includes(ext)) {
+					return 'fa fa-file-image';
+				}
+				return {
+					'pdf': 'fa fa-file-pdf',
+					'doc': 'fa fa-file-word',
+					'docx': 'fa fa-file-word',
+					'xls': 'fa fa-file-excel',
+					'xlsx': 'fa fa-file-excel'
+				}[ext] || 'fa fa-file';
+			}
+
+			function getFileColor(ext) {
+				const colorMap = {
+					'jpg': '#0dcaf0', 'jpeg': '#0dcaf0', 'png': '#0dcaf0', 'webp': '#0dcaf0',
+					'pdf': '#dc3545',
+					'doc': '#0d6efd', 'docx': '#0d6efd',
+					'xls': '#198754', 'xlsx': '#198754'
+				};
+				return colorMap[ext] || '#6c757d';
+			}
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				const k = 1024;
+				const sizes = ['Bytes', 'KB', 'MB'];
+				const i = Math.floor(Math.log(bytes) / Math.log(k));
+				return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+			}
+		});
+	</script>
+
+</body>
+
+</html>

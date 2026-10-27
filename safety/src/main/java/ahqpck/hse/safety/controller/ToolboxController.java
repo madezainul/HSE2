@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
+import ahqpck.hse.safety.model.dto.ToolboxSearchCriteria;
 import ahqpck.hse.safety.model.entity.ToolboxMeeting;
 import ahqpck.hse.safety.repository.ToolboxMeetingRepository;
 import ahqpck.hse.safety.repository.UserRepository;
+import ahqpck.hse.safety.service.ToolboxMeetingService;
+import ahqpck.hse.safety.util.ListQuerySupport;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
@@ -34,14 +37,26 @@ public class ToolboxController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ToolboxMeetingService toolboxService;
+
     @GetMapping
     public String toolboxPage(
             @RequestParam(name = "page", defaultValue = "0") int page,
             @RequestParam(name = "size", defaultValue = "10") int size,
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "") String meetingDateFrom,
+            @RequestParam(defaultValue = "") String meetingDateTo,
+            @RequestParam(defaultValue = "") String status,
+            @RequestParam(defaultValue = "meetingDate") String sortBy,
+            @RequestParam(defaultValue = "false") String asc,
+            @RequestParam(defaultValue = "") String hiddenColumns,
             Model model) {
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("meetingDate").descending());
-        Page<ToolboxMeeting> toolboxPage = toolboxRepository.findAll(pageable);
+        ToolboxSearchCriteria criteria = ToolboxSearchCriteria.of(keyword, meetingDateFrom, meetingDateTo, status);
+        boolean ascending = "true".equalsIgnoreCase(asc);
+
+        Page<ToolboxMeeting> toolboxPage = toolboxService.search(criteria, page, size, sortBy, ascending);
 
         Map<String, String> supervisorNameMap = new HashMap<>();
         for (ToolboxMeeting m : toolboxPage.getContent()) {
@@ -56,9 +71,19 @@ public class ToolboxController {
         model.addAttribute("title", "Toolbox Meeting");
         model.addAttribute("toolboxPage", toolboxPage);
         model.addAttribute("supervisorNameMap", supervisorNameMap);
-        model.addAttribute("pageSize", size);
-        model.addAttribute("sortBy", "meetingDate");
-        model.addAttribute("asc", false);
+        model.addAttribute("pageSize", ListQuerySupport.safeSize(size));
+        model.addAttribute("sortBy", sortBy);
+        model.addAttribute("asc", ascending);
+
+        // Echoed back so the filter form keeps its values and the page links keep the filters
+        model.addAttribute("keyword", keyword);
+        model.addAttribute("meetingDateFrom", meetingDateFrom);
+        model.addAttribute("meetingDateTo", meetingDateTo);
+        model.addAttribute("status", status);
+        model.addAttribute("hiddenColumns", hiddenColumns);
+
+        // Choices for the status drop-down
+        model.addAttribute("statuses", ToolboxMeeting.MeetingStatus.values());
 
         return "toolbox/index";
     }

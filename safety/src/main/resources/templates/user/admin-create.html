@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	layout:decorate="~{layouts/dashboard}">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Add User</title>
+	<meta content='width=device-width, initial-scale=1.0, shrink-to-fit=no' name='viewport' />
+	<link rel="icon" href="/assets/img/kaiadmin/favicon.ico" type="image/x-icon" />
+
+	<!-- Fonts and icons -->
+	<script src="/assets/js/plugin/webfont/webfont.min.js"></script>
+	<script>
+		WebFont.load({
+			google: { "families": ["Public Sans:300,400,500,600,700"] },
+			custom: { "families": ["Font Awesome 5 Solid", "Font Awesome 5 Regular", "Font Awesome 5 Brands", "simple-line-icons"], urls: ['/assets/css/fonts.min.css'] },
+			active: function () { sessionStorage.fonts = true; }
+		});
+	</script>
+
+	<!-- CSS Files -->
+	<link rel="stylesheet" href="/assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="/assets/css/plugins.min.css">
+	<link rel="stylesheet" href="/assets/css/kaiadmin.min.css">
+	<link rel="stylesheet" href="/assets/css/demo.css">
+</head>
+
+<body>
+	<div layout:fragment="content">
+		<div class="page-inner">
+			<!-- Header -->
+			<div class="d-flex align-items-left align-items-md-center flex-column flex-md-row pt-2 pb-4">
+				<div>
+					<h3 class="fw-bold mb-3">Add User</h3>
+					<p class="text-muted">Create a new user account</p>
+				</div>
+				<div class="ms-md-auto py-2 py-md-0">
+					<a href="/user" class="btn btn-secondary btn-round">
+						<i class="fa fa-arrow-left me-2"></i> Back to User List
+					</a>
+				</div>
+			</div>
+
+			<div class="row justify-content-center">
+				<div class="col-md-8">
+					<div class="card">
+						<div class="card-header">
+							<div class="card-title">
+								<i class="fa fa-user-plus me-2"></i> New User
+							</div>
+						</div>
+						<div class="card-body">
+
+							<form th:action="@{/user/new}" th:object="${createUserRequest}"
+								method="post" enctype="multipart/form-data" autocomplete="off">
+
+								<!-- Validation errors summary -->
+								<div th:if="${#fields.hasErrors('*')}" class="alert alert-danger" role="alert">
+									<i class="fa fa-exclamation-circle me-2"></i>
+									Please correct the errors below.
+									<ul class="mb-0 mt-2" th:if="${#fields.hasGlobalErrors()}">
+										<li th:each="err : ${#fields.globalErrors()}" th:text="${err}"></li>
+									</ul>
+								</div>
+
+								<!-- Profile Picture -->
+								<div class="row mb-4">
+									<div class="col-12">
+										<label class="form-label d-block">Profile Picture <small class="text-muted">(optional)</small></label>
+										<div class="d-flex align-items-center gap-3">
+											<img id="profilePreview" src="/assets/img/no_image.png" alt="Profile Picture"
+												style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid #dee2e6;cursor:pointer;"
+												onclick="document.getElementById('profilePicture').click()">
+											<div>
+												<input type="file" id="profilePicture" name="profilePicture" accept=".jpg,.jpeg,.png,.webp" class="form-control" style="display:none">
+												<button type="button" class="btn btn-sm btn-outline-primary" onclick="document.getElementById('profilePicture').click()">
+													<i class="fa fa-upload me-1"></i> Choose Picture
+												</button>
+												<div class="text-muted mt-1" style="font-size:12px;">JPG, PNG, WEBP. Max 5 MB.</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Full Name -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="fullName">Full Name <span class="text-danger">*</span></label>
+										<input type="text" id="fullName" th:field="*{fullName}"
+											class="form-control" th:classappend="${#fields.hasErrors('fullName')} ? 'is-invalid'"
+											placeholder="Enter full name">
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('fullName')}"
+											th:errors="*{fullName}"></div>
+									</div>
+
+									<!-- Employee ID -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="employeeId">Employee ID <span class="text-danger">*</span></label>
+										<input type="text" id="employeeId" th:field="*{employeeId}"
+											class="form-control" th:classappend="${#fields.hasErrors('employeeId')} ? 'is-invalid'"
+											placeholder="Enter employee ID">
+										<small class="text-muted">Can also be used to sign in.</small>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('employeeId')}"
+											th:errors="*{employeeId}"></div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Username -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="username">Username <span class="text-danger">*</span></label>
+										<input type="text" id="username" th:field="*{username}"
+											class="form-control" th:classappend="${#fields.hasErrors('username')} ? 'is-invalid'"
+											placeholder="4-20 characters" autocomplete="off">
+										<small class="text-muted">Cannot be changed later.</small>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('username')}"
+											th:errors="*{username}"></div>
+									</div>
+
+									<!-- Email -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="email">Email <small class="text-muted">(optional)</small></label>
+										<input type="email" id="email" th:field="*{email}"
+											class="form-control" th:classappend="${#fields.hasErrors('email')} ? 'is-invalid'"
+											placeholder="name@company.com">
+										<small class="text-muted">Not used yet. Will be used for password reset and notices later.</small>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('email')}"
+											th:errors="*{email}"></div>
+									</div>
+								</div>
+
+								<div class="row">
+									<!-- Department -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="department">Department <span class="text-danger">*</span></label>
+										<select id="department" th:field="*{department}" class="form-select"
+											th:classappend="${#fields.hasErrors('department')} ? 'is-invalid'">
+											<option value="">-- Select Department --</option>
+											<option value="admin">Administration</option>
+											<option value="safety">Safety</option>
+											<option value="operations">Operations</option>
+											<option value="hr">Human Resources</option>
+											<option value="it">IT</option>
+											<option value="qc">QC</option>
+											<option value="production">Production</option>
+											<option value="maintenance">Maintenance</option>
+										</select>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('department')}"
+											th:errors="*{department}"></div>
+									</div>
+
+									<!-- Role -->
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="role">Role <span class="text-danger">*</span></label>
+										<select id="role" th:field="*{role}" class="form-select"
+											th:classappend="${#fields.hasErrors('role')} ? 'is-invalid'">
+											<option value="">-- Select Role --</option>
+											<option value="ADMIN">Admin - full access, can manage users</option>
+											<option value="MANAGER">Manager</option>
+											<option value="USER">User</option>
+											<option value="VIEWER">Viewer - read only</option>
+											<option value="EMPLOYEE">Employee - no sign in</option>
+										</select>
+										<div class="invalid-feedback" th:if="${#fields.hasErrors('role')}"
+											th:errors="*{role}"></div>
+									</div>
+								</div>
+
+								<hr>
+
+								<!-- No login -->
+								<div class="form-check mb-3">
+									<input class="form-check-input" type="checkbox" id="noLoginRequired"
+										th:field="*{noLoginRequired}">
+									<label class="form-check-label" for="noLoginRequired">
+										This person does not need to sign in (record only)
+									</label>
+								</div>
+
+								<!-- Password -->
+								<div class="row" id="passwordFields">
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="password">Password <span class="text-danger">*</span></label>
+										<input type="password" id="password" th:field="*{password}"
+											class="form-control" placeholder="Set a password" autocomplete="new-password">
+										<small class="text-muted">At least 8 characters with uppercase, lowercase and a digit.</small>
+									</div>
+									<div class="col-md-6 mb-3">
+										<label class="form-label" for="confirmPassword">Confirm Password <span class="text-danger">*</span></label>
+										<input type="password" id="confirmPassword" th:field="*{confirmPassword}"
+											class="form-control" placeholder="Repeat the password" autocomplete="new-password">
+									</div>
+								</div>
+
+								<!-- Buttons -->
+								<div class="d-flex justify-content-end gap-2 mt-3">
+									<a href="/user" class="btn btn-secondary">
+										<i class="fa fa-times me-1"></i> Cancel
+									</a>
+									<button type="submit" class="btn btn-primary">
+										<i class="fa fa-save me-1"></i> Create User
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<th:block layout:fragment="scripts">
+		<script>
+			// Hide the password fields for people who never sign in
+			const noLogin = document.getElementById('noLoginRequired');
+			const passwordFields = document.getElementById('passwordFields');
+			function togglePasswordFields() {
+				passwordFields.style.display = noLogin.checked ? 'none' : '';
+			}
+			noLogin.addEventListener('change', togglePasswordFields);
+			togglePasswordFields();
+
+			// Choosing the EMPLOYEE role suggests "no sign in"
+			document.getElementById('role').addEventListener('change', function () {
+				if (this.value === 'EMPLOYEE') {
+					noLogin.checked = true;
+					togglePasswordFields();
+				}
+			});
+
+			// Profile picture preview
+			document.getElementById('profilePicture').addEventListener('change', function () {
+				if (this.files && this.files[0]) {
+					const reader = new FileReader();
+					reader.onload = function (e) {
+						document.getElementById('profilePreview').src = e.target.result;
+					};
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		</script>
+	</th:block>
+</body>
+
+</html>

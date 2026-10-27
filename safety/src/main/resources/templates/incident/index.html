@@ -48,10 +48,10 @@
                         <i class="fa fa-upload mr-1"></i> Export
                     </button>
 					<div class="dropdown-menu dropdown-menu-right mt-2" aria-labelledby="exportDropdown">
-						<a class="dropdown-item" href="#" id="exportExcel">
+						<a class="dropdown-item" th:href="@{/incident/export/excel}" id="exportExcel">
 							<i class="fa fa-file-excel mr-2 text-success"></i> Excel
 						</a>
-						<a class="dropdown-item" href="#" id="exportPdf">
+						<a class="dropdown-item" th:href="@{/incident/export/pdf}" id="exportPdf">
 							<i class="fa fa-file-pdf mr-2 text-danger"></i> PDF
 						</a>
 					</div>
@@ -75,111 +75,64 @@
 										aria-expanded="false" style="padding: 0.375rem 0.5rem;">
 										<i class="fa fa-filter"></i> Filter
 									</button>
-									<div class="dropdown-menu p-3" aria-labelledby="filterDropdownBtn"
+									<div class="dropdown-menu p-3" id="incidentFilterMenu" aria-labelledby="filterDropdownBtn"
 										style="min-width: 350px; max-width: 400px; width: 100%;">
 										<div class="form-group pb-0">
 											<label class="form-label small d-block">Search</label>
 											<div class="input-icon w-100">
-												<input type="text" name="keyword"
+												<input type="text" name="keyword" th:value="${keyword}"
 													class="form-control form-control-sm w-100"
-													placeholder="Accident ID, Details, Action...">
+													placeholder="Code, description, action, person, area...">
 												<span class="input-icon-addon"><i class="fa fa-search"></i></span>
 											</div>
 										</div>
 										<div class="form-group pb-0">
 											<label class="form-label small d-block">Report Date</label>
 											<div class="input-group input-daterange w-100">
-												<input type="date" name="reportDateFrom"
+												<input type="date" name="reportDateFrom" th:value="${reportDateFrom}"
 													class="form-control form-control-sm" placeholder="From">
 												<div class="input-group-prepend input-group-append">
 													<span class="input-group-text">to</span>
 												</div>
-												<input type="date" name="reportDateTo"
+												<input type="date" name="reportDateTo" th:value="${reportDateTo}"
 													class="form-control form-control-sm" placeholder="To">
 											</div>
 										</div>
 										<div class="form-group pb-0">
-											<label class="form-label small d-block">Assignee</label>
-											<div class="position-relative w-100">
-												<input type="text" class="form-control form-control-sm w-100"
-													id="filterAssigneeInput" placeholder="Search by name or ID"
-													autocomplete="off" />
-												<div id="filterAssigneeDropdown" class="dropdown-menu w-100"
-													style="position: absolute; z-index: 1000; display: none; max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-top: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-												</div>
-											</div>
-											<select class="d-none" name="assigneeEmpId" id="filterAssigneeSelect">
-												<option value=""></option>
+											<label class="form-label small d-block">Type</label>
+											<select name="type" class="form-control form-control-sm w-100">
+												<option value="">All Types</option>
+												<option th:each="t : ${types}" th:value="${t.name()}"
+													th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(t.name(), '_', ' ')))}"
+													th:selected="${t.name() == type}"></option>
 											</select>
-											<input type="hidden" name="assigneeEmpId" id="filterAssigneeHidden" />
 										</div>
 										<div class="form-group pb-0">
-											<label class="form-label small d-block">Equipment(s)</label>
-											<select id="equipmentSelect" name="equipmentCode" multiple
-												style="display: none;">
-												<option value=""></option>
+											<label class="form-label small d-block">Severity</label>
+											<select name="severity" class="form-control form-control-sm w-100">
+												<option value="">All Severities</option>
+												<option th:each="s : ${severities}" th:value="${s.name()}"
+													th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(s.name(), '_', ' ')))}"
+													th:selected="${s.name() == severity}"></option>
 											</select>
-											<div id="equipmentInput" style="min-height: calc(1.5em + 0.5rem + 2px); /* matches .form-control-sm */
-													padding: 0.25rem 0.5rem;
-													font-size: 0.875rem;
-													line-height: 1.5;
-													border: 1px solid #ced4da;
-													border-radius: 0.2rem;
-													background-color: #fff;
-													width: 100%;">
-												<div class="tag-list" id="equipmentTagList"></div>
-												<div class="position-relative w-100">
-													<input type="text" id="equipmentTagSearch"
-														class="tag-input-field border-0 w-100"
-														placeholder="Add equipment..." autocomplete="off"
-														style="outline: none; padding: 0; margin: 0; height: auto; min-height: auto; box-shadow: none;">
-													<div id="equipmentTagSearchDropdown" class="dropdown-menu w-100"
-														style="position: absolute; z-index: 1000; display: none; max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; border-top: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-													</div>
-												</div>
-											</div>
 										</div>
 										<div class="form-group pb-0">
-											<label class="form-label small d-block">Category</label>
-											<select name="group" class="form-control form-control-sm w-100">
-												<option value="">All Category</option>
+											<label class="form-label small d-block">Status</label>
+											<select name="status" class="form-control form-control-sm w-100">
+												<option value="">All Statuses</option>
+												<option th:each="st : ${statuses}" th:value="${st.name()}"
+													th:text="${#strings.capitalizeWords(#strings.toLowerCase(#strings.replace(st.name(), '_', ' ')))}"
+													th:selected="${st.name() == status}"></option>
 											</select>
 										</div>
 										<div class="form-group">
-											<label class="form-label small d-block">Status</label>
-
-											<!-- Hidden input to hold comma-separated values: "OPEN,IN_PROGRESS" -->
-											<input type="hidden" name="state" id="statusHiddenInput">
-
-											<!-- Hidden select for data source (not submitted) -->
-											<select id="statusSelect" multiple style="display: none;" disabled>
+											<label class="form-label small d-block">Area</label>
+											<select name="areaCode" class="form-control form-control-sm w-100">
+												<option value="">All Areas</option>
+												<option th:each="a : ${areas}" th:value="${a.code}" th:text="${a.name}"
+													th:selected="${a.code == areaCode}"></option>
 											</select>
-
-											<div id="statusTagInput" style="
-													min-height: calc(1.5em + 0.5rem + 2px);
-													padding: 0.25rem 0.5rem;
-													font-size: 0.875rem;
-													line-height: 1.5;
-													border: 1px solid #ced4da;
-													border-radius: 0.2rem;
-													background-color: #fff;
-													width: 100%;">
-												<div id="statusTagList"
-													style="display: flex; flex-wrap: wrap; gap: 0.25rem; margin: 0; padding: 0; list-style: none; width: 100%;">
-												</div>
-												<div class="position-relative w-100">
-													<input type="text" id="statusTagSearch"
-														style="border: none; outline: none; font-size: 0.875rem; padding: 0; margin: 0; height: auto; min-height: auto; background: transparent; width: 100%; box-shadow: none;"
-														placeholder="Add status..." list="statusOptions"
-														autocomplete="off">
-												</div>
-											</div>
-
-											<!-- Datalist for autocomplete (optional but nice) -->
-											<datalist id="statusOptions">
-											</datalist>
 										</div>
-										<!-- </div> -->
 										<button type="button" class="btn btn-primary btn-sm btn-block mt-2"
 											id="applyFilters">
 											<i class="fas fa-check"></i> Apply Filters
@@ -198,7 +151,7 @@
 										style="padding: 0.375rem 0.5rem;">
 										<i class="fas fa-th-list"></i>
 									</button>
-									<div class="dropdown-menu dropdown-menu-right" aria-labelledby="columnToggleDropdown"
+									<div class="dropdown-menu dropdown-menu-right dropdown-menu-end" aria-labelledby="columnToggleDropdown"
 										style="min-width: 250px; max-height: 300px; overflow-y: auto; padding: 0.5rem 0;">
 										<h6 class="dropdown-header px-3 py-2">Show / Hide Columns</h6>
 										<div id="column-toggle-list"></div>
@@ -208,11 +161,11 @@
 								<!-- ascending/descending sort button -->
 								<div class="dropdown me-2">
                                     <button class="btn btn-primary dropdown-toggle" type="button" id="sortDropdown"
-                                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
                                         style="padding: 0.375rem 0.5rem;">
                                         <i class="fa fa-sort"></i>
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="sortDropdown"
+                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-end" aria-labelledby="sortDropdown"
                                         style="min-width: 200px;">
                                         <input type="hidden" name="sortBy" id="sortByInput" th:value="${sortBy}" />
                                         <input type="hidden" name="asc" id="ascInput" th:value="${asc}" />
@@ -232,12 +185,12 @@
 								<div class="form-group">
                                     <label for="pageSizeSelect" class="sr-only">Items per page:</label>
                                     <select name="size" id="pageSizeSelect" class="form-control form-control">
-                                        <option value="10" th:selected="${pageSize == '10'}">10</option>
-                                        <option value="30" th:selected="${pageSize == '30'}">30</option>
-                                        <option value="50" th:selected="${pageSize == '50'}">50</option>
-                                        <option value="100" th:selected="${pageSize == '100'}">100</option>
-                                        <option value="300" th:selected="${pageSize == '300'}">300</option>
-                                        <option value="500" th:selected="${pageSize == '500'}">500</option>
+                                        <option value="10" th:selected="${pageSize == 10}">10</option>
+                                        <option value="30" th:selected="${pageSize == 30}">30</option>
+                                        <option value="50" th:selected="${pageSize == 50}">50</option>
+                                        <option value="100" th:selected="${pageSize == 100}">100</option>
+                                        <option value="300" th:selected="${pageSize == 300}">300</option>
+                                        <option value="500" th:selected="${pageSize == 500}">500</option>
                                     </select>
                                 </div>
 								<!-- page size selector end -->
@@ -245,60 +198,87 @@
 						</div>
 						<div class="card-body">
 							<div class="table-responsive">
-								<table class="table table-hover table-responsive table-head-bg-info">
+								<table id="incident-table" class="table table-hover table-responsive table-head-bg-info">
 									<thead>
 										<tr>
-											<th>Code</th>
-											<th>Date</th>
-											<th>Area</th>
-											<th>Description</th>
-											<th>Type</th>
-											<th>Severity</th>
-											<th>Status</th>
-											<th>Reported By</th>
+											<th data-sort="code" style="cursor: pointer;">Code <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="reportDate" style="cursor: pointer;">Date <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="area" style="cursor: pointer;">Area <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="description" style="cursor: pointer;">Description <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="type" style="cursor: pointer;">Type <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="severity" style="cursor: pointer;">Severity <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="status" style="cursor: pointer;">Status <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="reportedBy" style="cursor: pointer;">Reported By <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="involvedPersonName" style="cursor: pointer;">Involved Person <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="witnesses" style="cursor: pointer;">Witnesses <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="immediateAction" style="cursor: pointer;">Immediate Action <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="correctiveAction" style="cursor: pointer;">Corrective Action <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="medicalAttentionRequired" style="cursor: pointer;">Medical Attention <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="createdAt" style="cursor: pointer;">Creation Time <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
+											<th data-sort="updatedAt" style="cursor: pointer;">Update Time <i class="fas fa-sort text-white-50 ml-1 sort-indicator"></i></th>
 										</tr>
 									</thead>
 									<tbody>
 										<!-- Dynamic Incident Data from Database -->
-										<tr th:each="incident : ${incidentsPage.content}" 
+										<tr th:each="incident : ${incidentsPage.content}"
 											class="clickable-row"
 											th:data-incident-code="${incident.code}"
-											style="cursor: pointer;" 
-											onmouseover="this.style.backgroundColor='#f5f5f5';" 
+											style="cursor: pointer;"
+											onmouseover="this.style.backgroundColor='#f5f5f5';"
 											onmouseout="this.style.backgroundColor='';">
-											<td><strong th:text="${incident.code}"></strong></td>
-											<td
-												th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'yyyy-MM-dd') : ''}">
-											</td>
-											<td th:text="${incident.area != null ? incident.area.name : 'N/A'}"></td>
-											<td th:text="${#strings.abbreviate(incident.description ?: '', 50)}"></td>
-											<td>
+											<td data-field="code"><strong th:text="${incident.code}"></strong></td>
+											<td data-field="reportDate"
+												th:text="${incident.reportDate != null ? #temporals.format(incident.reportDate, 'yyyy-MM-dd') : ''}"></td>
+											<td data-field="area" th:text="${incident.area != null ? incident.area.name : 'N/A'}"></td>
+											<td data-field="description" th:title="${incident.description}"
+												th:text="${#strings.abbreviate(incident.description ?: '', 50)}"></td>
+											<td data-field="type">
 												<span class="badge" th:classappend="${
-													incident.type == 'ACCIDENT' ? 'bg-danger' :
-													incident.type == 'NEAR_MISS' ? 'bg-warning' :
-													incident.type == 'UNSAFE_ACT' ? 'bg-orange' :
-													incident.type == 'UNSAFE_CONDITION' ? 'bg-info' :
-													incident.type == 'PROPERTY_DAMAGE' ? 'bg-secondary' :
+													incident.type?.name() == 'ACCIDENT' ? 'bg-danger' :
+													incident.type?.name() == 'NEAR_MISS' ? 'bg-warning' :
+													incident.type?.name() == 'UNSAFE_ACT' ? 'bg-orange' :
+													incident.type?.name() == 'UNSAFE_CONDITION' ? 'bg-info' :
+													incident.type?.name() == 'PROPERTY_DAMAGE' ? 'bg-secondary' :
 													'bg-primary'
 												}" th:text="${incident.type ?: ''}"></span>
 											</td>
-											<td>
+											<td data-field="severity">
 												<span class="badge" th:classappend="${
-													incident.severity == 'CRITICAL' ? 'bg-danger' :
-													incident.severity == 'HIGH' ? 'bg-warning' :
-													incident.severity == 'MEDIUM' ? 'bg-info' :
+													incident.severity?.name() == 'CRITICAL' ? 'bg-danger' :
+													incident.severity?.name() == 'HIGH' ? 'bg-warning' :
+													incident.severity?.name() == 'MEDIUM' ? 'bg-info' :
 													'bg-success'
 												}" th:text="${incident.severity ?: ''}"></span>
 											</td>
-											<td>
+											<td data-field="status">
 												<span class="badge" th:classappend="${
-													incident.status == 'REPORTED' ? 'bg-info' :
-													incident.status == 'UNDER_INVESTIGATION' ? 'bg-warning' :
-													incident.status == 'RESOLVED' ? 'bg-success' :
+													incident.status?.name() == 'REPORTED' ? 'bg-warning text-dark' :
+													incident.status?.name() == 'UNDER_INVESTIGATION' ? 'bg-danger' :
+													incident.status?.name() == 'RESOLVED' ? 'bg-success' :
+													incident.status?.name() == 'CLOSED' ? 'bg-primary' :
 													'bg-secondary'
 												}" th:text="${incident.status ?: ''}"></span>
 											</td>
-											<td th:text="${incident.reportedBy ?: ''}"></td>
+											<td data-field="reportedBy" th:text="${incident.reportedBy ?: ''}"></td>
+											<td data-field="involvedPersonName" th:text="${incident.involvedPersonName ?: ''}"></td>
+											<td data-field="witnesses" th:title="${incident.witnesses}"
+												th:text="${#strings.abbreviate(incident.witnesses ?: '', 50)}"></td>
+											<td data-field="immediateAction" th:title="${incident.immediateAction}"
+												th:text="${#strings.abbreviate(incident.immediateAction ?: '', 50)}"></td>
+											<td data-field="correctiveAction" th:title="${incident.correctiveAction}"
+												th:text="${#strings.abbreviate(incident.correctiveAction ?: '', 50)}"></td>
+											<td data-field="medicalAttentionRequired"
+												th:text="${incident.medicalAttentionRequired == true ? 'Yes' : 'No'}"></td>
+											<td data-field="createdAt"
+												th:text="${incident.createdAt != null ? #temporals.format(incident.createdAt, 'yyyy-MM-dd HH:mm') : ''}"></td>
+											<td data-field="updatedAt"
+												th:text="${incident.updatedAt != null ? #temporals.format(incident.updatedAt, 'yyyy-MM-dd HH:mm') : ''}"></td>
+										</tr>
+										<tr th:if="${incidentsPage.content.isEmpty()}">
+											<td colspan="15" class="text-center text-muted py-4">
+												<i class="fa fa-inbox fa-2x mb-2 d-block"></i>
+												No incidents found.
+											</td>
 										</tr>
 									</tbody>
 								</table>
@@ -313,17 +293,27 @@
 				<div class="col-md-12">
 					<nav aria-label="Page navigation">
 						<ul class="pagination justify-content-center">
-							<li class="page-item disabled">
-								<a class="page-link" href="#" tabindex="-1">Previous</a>
+							<li class="page-item" th:classappend="${!incidentsPage.hasPrevious} ? 'disabled'">
+								<a class="page-link" th:if="${incidentsPage.hasPrevious}"
+									th:href="@{/incident(page=${incidentsPage.number - 1}, size=${pageSize}, sortBy=${sortBy}, asc=${asc}, keyword=${keyword}, reportDateFrom=${reportDateFrom}, reportDateTo=${reportDateTo}, type=${type}, severity=${severity}, status=${status}, areaCode=${areaCode}, hiddenColumns=${hiddenColumns})}">Previous</a>
+								<span class="page-link" th:if="${!incidentsPage.hasPrevious}">Previous</span>
 							</li>
-							<li class="page-item active"><a class="page-link" href="#">1</a></li>
-							<li class="page-item"><a class="page-link" href="#">2</a></li>
-							<li class="page-item"><a class="page-link" href="#">3</a></li>
+							<li class="page-item active">
+								<span class="page-link" th:text="${incidentsPage.number + 1}">1</span>
+							</li>
 							<li class="page-item">
-								<a class="page-link" href="#">Next</a>
+								<span class="page-link text-muted">of <span th:text="${incidentsPage.totalPages == 0 ? 1 : incidentsPage.totalPages}">1</span></span>
+							</li>
+							<li class="page-item" th:classappend="${!incidentsPage.hasNext} ? 'disabled'">
+								<a class="page-link" th:if="${incidentsPage.hasNext}"
+									th:href="@{/incident(page=${incidentsPage.number + 1}, size=${pageSize}, sortBy=${sortBy}, asc=${asc}, keyword=${keyword}, reportDateFrom=${reportDateFrom}, reportDateTo=${reportDateTo}, type=${type}, severity=${severity}, status=${status}, areaCode=${areaCode}, hiddenColumns=${hiddenColumns})}">Next</a>
+								<span class="page-link" th:if="${!incidentsPage.hasNext}">Next</span>
 							</li>
 						</ul>
 					</nav>
+					<p class="text-center text-muted small mb-0">
+						<span th:text="${incidentsPage.totalElements}">0</span> incidents
+					</p>
 				</div>
 			</div>
 		</div>
@@ -334,56 +324,9 @@
 		<script th:src="@{/assets/js/custom/incident-index.js}"></script>
 		<script th:src="@{/assets/js/custom/incident-modal.js}"></script>
 
-		<!-- Row Click Handler for Incident Navigation -->
-		<script>
-			document.addEventListener('DOMContentLoaded', function() {
-				const clickableRows = document.querySelectorAll('.clickable-row');
-				clickableRows.forEach(row => {
-					row.addEventListener('click', function(e) {
-						if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') return;
-						const incidentCode = this.getAttribute('data-incident-code');
-						if (incidentCode) window.location.href = '/incident/' + incidentCode;
-					});
-				});
-
-				// Page size
-				const pageSizeSelect = document.getElementById('pageSizeSelect');
-				if (pageSizeSelect) {
-					pageSizeSelect.addEventListener('change', function () {
-						const url = new URL(window.location.href);
-						url.searchParams.set('size', this.value);
-						url.searchParams.set('page', '0');
-						window.location.href = url.toString();
-					});
-				}
-
-				// Apply filters
-				document.getElementById('applyFilters')?.addEventListener('click', function () {
-					const params = new URLSearchParams();
-					params.set('page', '0');
-					const size = pageSizeSelect?.value;
-					if (size) params.set('size', size);
-					const keyword = document.querySelector('[name="keyword"]')?.value?.trim();
-					if (keyword) params.set('keyword', keyword);
-					const dateFrom = document.querySelector('[name="reportDateFrom"]')?.value;
-					if (dateFrom) params.set('reportDateFrom', dateFrom);
-					const dateTo = document.querySelector('[name="reportDateTo"]')?.value;
-					if (dateTo) params.set('reportDateTo', dateTo);
-					const assigneeEmpId = document.getElementById('filterAssigneeHidden')?.value;
-					if (assigneeEmpId) params.set('assigneeEmpId', assigneeEmpId);
-					const group = document.querySelector('[name="group"]')?.value;
-					if (group) params.set('group', group);
-					const state = document.getElementById('statusHiddenInput')?.value;
-					if (state) params.set('state', state);
-					window.location.href = '/incident?' + params.toString();
-				});
-
-				// Reset filters
-				document.getElementById('resetFilters')?.addEventListener('click', function () {
-					window.location.href = '/incident';
-				});
-			});
-		</script>
+		<!-- Shared list helpers (filter / sort / column toggle) and this page's script -->
+			<script th:src="@{/assets/js/custom/index-module.js}"></script>
+			<script th:src="@{/assets/js/custom/incident-list.js}"></script>
 	</th:block>
 	
 	<script src="/assets/js/plugin/sweetalert/sweetalert.min.js"></script>

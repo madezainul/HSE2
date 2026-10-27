@@ -64,3 +64,29 @@ UNLOCK TABLES;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-12-21 13:08:37
+
+
+USE hse_dev;
+
+START TRANSACTION;
+CREATE TABLE hse_internal_trainings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    employee_id VARCHAR(255) NOT NULL,
+    employee_name VARCHAR(255),
+    training_name VARCHAR(255) NOT NULL,
+    training_date DATE NOT NULL,
+    duration DOUBLE,
+    trainer_name VARCHAR(255) NOT NULL,
+    trainer_id VARCHAR(255),
+    remarks TEXT,
+    file_path VARCHAR(255),
+    original_file_name VARCHAR(255),
+    file_size_bytes BIGINT,
+    file_extension VARCHAR(10),
+    created_by_id BIGINT,
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME,
+    FOREIGN KEY (created_by_id) REFERENCES users(id)
+);
+COMMIT;

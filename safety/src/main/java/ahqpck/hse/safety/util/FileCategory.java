@@ -15,10 +15,17 @@ public enum FileCategory {
     HSE_FORM_DOCUMENT         ("hse-form/documents",         FileType.DOCUMENT),
     HSE_INDUCTION_IMAGE       ("hse-induction/images",       FileType.IMAGE),
     HSE_INDUCTION_DOCUMENT    ("hse-induction/documents",    FileType.DOCUMENT),
-    FIRE_SAFETY_INSPECTION_DOCUMENT   ("inspection/fire-safety/documents",   FileType.DOCUMENT),
+    HSE_INTERNAL_TRAINING_IMAGE       ("hse-internal-training/images",       FileType.IMAGE),
+    HSE_INTERNAL_TRAINING_DOCUMENT    ("hse-internal-training/documents",    FileType.DOCUMENT),
+    HSE_EXTERNAL_TRAINING_IMAGE       ("hse-external-training/images",       FileType.IMAGE),
+    HSE_EXTERNAL_TRAINING_DOCUMENT    ("hse-external-training/documents",    FileType.DOCUMENT),
+    HSE_CERTIFICATION_IMAGE           ("hse-certification/images",           FileType.IMAGE),
+    HSE_CERTIFICATION_DOCUMENT        ("hse-certification/documents",        FileType.DOCUMENT),
+    FIRE_SAFETY_INSPECTION_DOCUMENT ("inspection/fire-safety/documents",   FileType.DOCUMENT),
     ENVIRONMENT_INSPECTION_DOCUMENT   ("inspection/environment/documents",   FileType.DOCUMENT),
     FIRST_AID_INSPECTION_DOCUMENT     ("inspection/first-aid/documents",     FileType.DOCUMENT),
     SPILL_KIT_INSPECTION_DOCUMENT     ("inspection/spill-kit/documents",     FileType.DOCUMENT),
+    DAILY_INSPECTION_DOCUMENT         ("inspection/daily/documents",         FileType.DOCUMENT),
     OTHER_INSPECTION_DOCUMENT         ("inspection/other/documents",         FileType.DOCUMENT);
 
     private final String path;

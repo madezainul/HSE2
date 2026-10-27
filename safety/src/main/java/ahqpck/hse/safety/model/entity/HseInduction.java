@@ -2,10 +2,7 @@ package ahqpck.hse.safety.model.entity;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
-import ahqpck.hse.safety.util.Base62Utils;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,26 +15,38 @@ import lombok.*;
 public class HseInduction {
 
     @Id
-    @Column(nullable = false, unique = true, length = 50)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "code", nullable = false, unique = true, length = 20)
     private String code;
 
-    @Column(name = "induction_name", nullable = false)
-    private String inductionName;
+    @Column(name = "trainee_id", nullable = false)
+    private String traineeId;
 
-    @Column(name = "category", nullable = false)
-    private String category;
+    @Column(name = "trainee_name")
+    private String traineeName;
 
     @Column(name = "induction_date", nullable = false)
     private LocalDate inductionDate;
 
-    @Column(name = "value")
-    private String value;
+    @Column(name = "trainers")
+    private String trainers;
 
-    @Column(name = "description", columnDefinition = "TEXT")
-    private String description;
+    @Column(name = "trainer_id")
+    private String trainerId;
+
+    @Column(name = "file_path")
+    private String filePath;
+
+    @Column(name = "original_file_name")
+    private String originalFileName;
+
+    @Column(name = "file_size_bytes")
+    private Long fileSizeBytes;
+
+    @Column(name = "file_extension", length = 10)
+    private String fileExtension;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_id")
@@ -51,19 +60,8 @@ public class HseInduction {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "hseInduction", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<HseInductionFile> files = new ArrayList<>();
-
     @PrePersist
     public void prePersist() {
-        if (this.id == null || this.id.isEmpty()) {
-            this.id = Base62Utils.generateBase62UUID();
-        }
-        if (this.code == null || this.code.isEmpty()) {
-            this.code = generateInductionCode();
-        }
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
@@ -77,10 +75,22 @@ public class HseInduction {
         this.updatedAt = LocalDateTime.now();
     }
 
-    /**
-     * Generate a unique code for the induction record (e.g., IND-000001)
-     */
-    private String generateInductionCode() {
-        return "IND-" + String.format("%06d", System.nanoTime() % 1000000);
+    public String getFormattedFileSize() {
+        if (fileSizeBytes == null) return "N/A";
+        if (fileSizeBytes >= 1_048_576) {
+            return String.format("%.2f MB", fileSizeBytes / 1_048_576.0);
+        }
+        return String.format("%.0f KB", fileSizeBytes / 1024.0);
+    }
+
+    public String getFileIconClass() {
+        if (fileExtension == null) return "fa fa-file me-2 text-muted";
+        return switch (fileExtension.toLowerCase()) {
+            case ".pdf" -> "fa fa-file-pdf me-2 text-danger";
+            case ".doc", ".docx" -> "fa fa-file-word me-2 text-primary";
+            case ".xls", ".xlsx" -> "fa fa-file-excel me-2 text-success";
+            case ".jpg", ".jpeg", ".png", ".webp" -> "fa fa-file-image me-2 text-info";
+            default -> "fa fa-file me-2 text-muted";
+        };
     }
 }

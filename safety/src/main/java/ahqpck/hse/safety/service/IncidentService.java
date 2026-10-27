@@ -5,13 +5,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import ahqpck.hse.safety.model.dto.IncidentDTO;
 import ahqpck.hse.safety.model.dto.IncidentFileDTO;
+import ahqpck.hse.safety.model.dto.IncidentSearchCriteria;
 import ahqpck.hse.safety.model.entity.Area;
 import ahqpck.hse.safety.model.entity.Incident;
 import ahqpck.hse.safety.model.entity.IncidentComment;
@@ -22,6 +28,7 @@ import ahqpck.hse.safety.repository.IncidentCommentRepository;
 import ahqpck.hse.safety.repository.IncidentFileRepository;
 import ahqpck.hse.safety.repository.IncidentRepository;
 import ahqpck.hse.safety.repository.UserRepository;
+import ahqpck.hse.safety.util.ListQuerySupport;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -39,6 +46,49 @@ public class IncidentService {
     IncidentCommentRepository incidentCommentRepo;
     @Autowired
     private UserRepository userRepository;
+
+    /** Largest page the list can ask for (the page-size selector goes up to 500). */
+    public static final int MAX_PAGE_SIZE = ListQuerySupport.MAX_PAGE_SIZE;
+    public static final int DEFAULT_PAGE_SIZE = ListQuerySupport.DEFAULT_PAGE_SIZE;
+
+    /** Columns the list may be sorted by: URL name -> entity property. Anything else is ignored. */
+    private static final Map<String, String> SORTABLE_FIELDS = Map.ofEntries(
+            Map.entry("code", "code"),
+            Map.entry("reportDate", "reportDate"),
+            Map.entry("area", "area.name"),
+            Map.entry("description", "description"),
+            Map.entry("type", "type"),
+            Map.entry("severity", "severity"),
+            Map.entry("status", "status"),
+            Map.entry("reportedBy", "reportedBy"),
+            Map.entry("involvedPersonName", "involvedPersonName"),
+            Map.entry("createdAt", "createdAt"),
+            Map.entry("updatedAt", "updatedAt"));
+
+    public static int safePage(int page) {
+        return ListQuerySupport.safePage(page);
+    }
+
+    public static int safeSize(int size) {
+        return ListQuerySupport.safeSize(size);
+    }
+
+    /**
+     * Turns the sort choice from the URL into a safe Sort. An unknown column falls back to
+     * "newest report first"; the id is added as a tie-breaker so paging stays stable.
+     */
+    public static Sort resolveSort(String sortBy, boolean asc) {
+        return ListQuerySupport.resolveSort(SORTABLE_FIELDS, sortBy, asc, "reportDate");
+    }
+
+    /**
+     * One page of incidents for the list, filtered and sorted.
+     */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public Page<Incident> search(IncidentSearchCriteria criteria, int page, int size, String sortBy, boolean asc) {
+        Pageable pageable = PageRequest.of(safePage(page), safeSize(size), resolveSort(sortBy, asc));
+        return incidentRepo.findAll(IncidentSpecifications.matching(criteria), pageable);
+    }
 
     @Transactional
     public Incident save(IncidentDTO dto, String currentUserId) {

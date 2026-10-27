@@ -5,17 +5,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import ahqpck.hse.safety.model.entity.HseInduction;
-import ahqpck.hse.safety.model.entity.User;
-import ahqpck.hse.safety.service.HseInductionService;
+import ahqpck.hse.safety.service.HseTrainingService;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,61 +23,38 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class HseInductionRestController {
 
-    private final HseInductionService inductionService;
+    private final HseTrainingService trainingService;
 
     /**
-     * Create a new HSE Induction record with optional file uploads
+     * Create a new HSE Induction record with file upload
      */
     @PostMapping(consumes = "multipart/form-data")
     public ResponseEntity<?> createInduction(
-            @RequestParam String inductionName,
-            @RequestParam String category,
+            @RequestParam String traineeId,
+            @RequestParam(required = false) String traineeName,
             @RequestParam String inductionDate,
-            @RequestParam(required = false) String value,
-            @RequestParam(required = false) String description,
+            @RequestParam String trainers,
+            @RequestParam(required = false) String trainerId,
+            @RequestParam(value = "inductionFile", required = false) MultipartFile inductionFile,
             @RequestParam(value = "inductionImages", required = false) MultipartFile[] inductionImages,
-            @RequestParam(value = "inductionDocuments", required = false) MultipartFile[] inductionDocuments,
-            Authentication authentication) {
+            @RequestParam(value = "inductionDocuments", required = false) MultipartFile[] inductionDocuments) {
         try {
-            log.info("Creating HSE Induction record: {}", inductionName);
+            log.info("Creating HSE Induction record for trainee: {} ({})", traineeId, traineeName);
 
-            // Get current user
-            User currentUser = (User) authentication.getPrincipal();
-
-            // Parse induction date
             LocalDate parsedDate = LocalDate.parse(inductionDate);
 
-            // Create induction record
-            HseInduction induction = HseInduction.builder()
-                    .inductionName(inductionName)
-                    .category(category)
-                    .inductionDate(parsedDate)
-                    .value(value)
-                    .description(description)
-                    .build();
+            // Use file from modal (inductionFile), or fallback to array-based upload from legacy form
+            MultipartFile fileToStore = null;
+            if (inductionFile != null && !inductionFile.isEmpty()) {
+                fileToStore = inductionFile;
+            } else if (inductionImages != null && inductionImages.length > 0 && !inductionImages[0].isEmpty()) {
+                fileToStore = inductionImages[0];
+            } else if (inductionDocuments != null && inductionDocuments.length > 0 && !inductionDocuments[0].isEmpty()) {
+                fileToStore = inductionDocuments[0];
+            }
 
-            HseInduction createdInduction = inductionService.create(induction, currentUser);
+            HseInduction createdInduction = trainingService.create(traineeId, traineeName, parsedDate, trainers, trainerId, fileToStore);
             log.info("HSE Induction record created with code: {}", createdInduction.getCode());
-
-            // Upload images if provided
-            if (inductionImages != null && inductionImages.length > 0) {
-                for (MultipartFile imageFile : inductionImages) {
-                    if (!imageFile.isEmpty()) {
-                        inductionService.saveFile(createdInduction.getCode(), imageFile, "IMAGE");
-                        log.info("Image uploaded for induction: {}", createdInduction.getCode());
-                    }
-                }
-            }
-
-            // Upload documents if provided
-            if (inductionDocuments != null && inductionDocuments.length > 0) {
-                for (MultipartFile docFile : inductionDocuments) {
-                    if (!docFile.isEmpty()) {
-                        inductionService.saveFile(createdInduction.getCode(), docFile, "DOCUMENT");
-                        log.info("Document uploaded for induction: {}", createdInduction.getCode());
-                    }
-                }
-            }
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -93,6 +68,12 @@ public class HseInductionRestController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (IOException e) {
+            log.error("File upload error", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "File upload error: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             log.error("Error creating HSE Induction record", e);
@@ -112,7 +93,7 @@ public class HseInductionRestController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             Pageable pageable = PageRequest.of(page, size);
-            Page<HseInduction> inductionPage = inductionService.findAll(pageable);
+            Page<HseInduction> inductionPage = trainingService.findAll(pageable);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -138,7 +119,7 @@ public class HseInductionRestController {
     @GetMapping("/{code}")
     public ResponseEntity<?> getInductionByCode(@PathVariable String code) {
         try {
-            HseInduction induction = inductionService.findByCode(code);
+            HseInduction induction = trainingService.findByCode(code);
             if (induction == null) {
                 return ResponseEntity.notFound().build();
             }
@@ -163,22 +144,17 @@ public class HseInductionRestController {
     @PutMapping("/{code}")
     public ResponseEntity<?> updateInduction(
             @PathVariable String code,
-            @RequestParam(required = false) String inductionName,
-            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String traineeId,
+            @RequestParam(required = false) String traineeName,
             @RequestParam(required = false) String inductionDate,
-            @RequestParam(required = false) String value,
-            @RequestParam(required = false) String description) {
+            @RequestParam(required = false) String trainers,
+            @RequestParam(required = false) String trainerId,
+            @RequestParam(value = "file", required = false) MultipartFile file) {
         try {
             log.info("Updating HSE Induction record: {}", code);
 
-            HseInduction updateData = new HseInduction();
-            if (inductionName != null) updateData.setInductionName(inductionName);
-            if (category != null) updateData.setCategory(category);
-            if (inductionDate != null) updateData.setInductionDate(LocalDate.parse(inductionDate));
-            if (value != null) updateData.setValue(value);
-            if (description != null) updateData.setDescription(description);
-
-            HseInduction updatedInduction = inductionService.update(code, updateData);
+            LocalDate parsedDate = inductionDate != null ? LocalDate.parse(inductionDate) : null;
+            HseInduction updatedInduction = trainingService.update(code, traineeId, traineeName, parsedDate, trainers, trainerId, file);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -192,6 +168,12 @@ public class HseInductionRestController {
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        } catch (IOException e) {
+            log.error("File upload error", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "File upload error: " + e.getMessage());
             return ResponseEntity.badRequest().body(response);
         } catch (Exception e) {
             log.error("Error updating HSE Induction record: {}", code, e);
@@ -209,7 +191,7 @@ public class HseInductionRestController {
     public ResponseEntity<?> deleteInduction(@PathVariable String code) {
         try {
             log.info("Deleting HSE Induction record: {}", code);
-            inductionService.delete(code);
+            trainingService.delete(code);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -217,6 +199,18 @@ public class HseInductionRestController {
 
             return ResponseEntity.ok(response);
 
+        } catch (RuntimeException e) {
+            log.error("Record not found: {}", code);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", e.getMessage());
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            log.error("File deletion error", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "File deletion error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
         } catch (Exception e) {
             log.error("Error deleting HSE Induction record: {}", code, e);
             Map<String, Object> response = new HashMap<>();
@@ -227,13 +221,13 @@ public class HseInductionRestController {
     }
 
     /**
-     * Delete a file associated with an HSE Induction record
+     * Delete file from an HSE Induction record (without deleting the record)
      */
-    @DeleteMapping("/file/{fileId}")
-    public ResponseEntity<?> deleteFile(@PathVariable String fileId) {
+    @DeleteMapping("/{code}/file")
+    public ResponseEntity<?> deleteFile(@PathVariable String code) {
         try {
-            log.info("Deleting HSE Induction file: {}", fileId);
-            inductionService.deleteFile(fileId);
+            log.info("Deleting file from HSE Induction record: {}", code);
+            trainingService.deleteFile(code);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -241,8 +235,17 @@ public class HseInductionRestController {
 
             return ResponseEntity.ok(response);
 
+        } catch (RuntimeException e) {
+            log.error("Record not found: {}", code);
+            return ResponseEntity.notFound().build();
+        } catch (IOException e) {
+            log.error("File deletion error", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("success", false);
+            response.put("message", "File deletion error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(response);
         } catch (Exception e) {
-            log.error("Error deleting file: {}", fileId, e);
+            log.error("Error deleting file: {}", code, e);
             Map<String, Object> response = new HashMap<>();
             response.put("success", false);
             response.put("message", "Error deleting file: " + e.getMessage());

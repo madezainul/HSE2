@@ -12,10 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import ahqpck.hse.safety.model.dto.ToolboxMeetingDTO;
 import ahqpck.hse.safety.model.dto.ToolboxMeetingDTO.ToolboxMeetingFileDTO;
+import ahqpck.hse.safety.model.dto.ToolboxSearchCriteria;
 import ahqpck.hse.safety.model.entity.ToolboxMeeting;
 import ahqpck.hse.safety.model.entity.ToolboxMeetingFile;
 import ahqpck.hse.safety.repository.ToolboxMeetingFileRepository;
 import ahqpck.hse.safety.repository.ToolboxMeetingRepository;
+import ahqpck.hse.safety.util.ListQuerySupport;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -28,6 +30,38 @@ public class ToolboxMeetingService {
 
     @Autowired
     private ToolboxMeetingFileRepository toolboxFileRepo;
+
+    /** Columns the list may be sorted by: URL name -> entity property. Anything else is ignored. */
+    private static final java.util.Map<String, String> SORTABLE_FIELDS = java.util.Map.ofEntries(
+            java.util.Map.entry("code", "code"),
+            java.util.Map.entry("location", "location"),
+            java.util.Map.entry("meetingDate", "meetingDate"),
+            java.util.Map.entry("timeStarted", "timeStarted"),
+            java.util.Map.entry("timeEnd", "timeEnd"),
+            java.util.Map.entry("supervisor", "supervisor"),
+            java.util.Map.entry("supervisorEmployeeId", "supervisorEmployeeId"),
+            java.util.Map.entry("status", "status"),
+            java.util.Map.entry("createdAt", "createdAt"),
+            java.util.Map.entry("updatedAt", "updatedAt"));
+
+    /**
+     * Turns the sort choice from the URL into a safe Sort. An unknown column falls back to
+     * "newest meeting first"; the id is added as a tie-breaker so paging stays stable.
+     */
+    public static org.springframework.data.domain.Sort resolveSort(String sortBy, boolean asc) {
+        return ListQuerySupport.resolveSort(SORTABLE_FIELDS, sortBy, asc, "meetingDate");
+    }
+
+    /**
+     * One page of toolbox meetings for the list, filtered and sorted.
+     */
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<ToolboxMeeting> search(ToolboxSearchCriteria criteria,
+                                                                       int page, int size, String sortBy, boolean asc) {
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(
+                ListQuerySupport.safePage(page), ListQuerySupport.safeSize(size), resolveSort(sortBy, asc));
+        return toolboxRepo.findAll(ToolboxSpecifications.matching(criteria), pageable);
+    }
 
     @Transactional
     public ToolboxMeeting save(ToolboxMeetingDTO dto) {

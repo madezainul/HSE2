@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
 
 /**
  * Spring Security configuration.
@@ -67,10 +68,10 @@ public class SecurityConfig {
             .headers(headers -> headers
                 .frameOptions(frameOptions -> frameOptions.sameOrigin()) // Allow H2 console
             )
-            // Exception handling
-            .exceptionHandling(exception -> exception
-                .accessDeniedPage("/auth/login")
-            );
+            // A signed-in user without permission gets the 403 page (templates/error/403.html),
+            // not the login page. Signed-out users are still sent to login by the form login above.
+            // After an admin password reset, the user must choose a new password before using the app
+            .addFilterBefore(new PasswordChangeRequiredFilter(), AuthorizationFilter.class);
 
         return http.build();
     }
